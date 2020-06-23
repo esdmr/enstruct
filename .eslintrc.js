@@ -296,7 +296,7 @@ module.exports = {
 		// There are some stuff that needs to be checked.
 		'newline-per-chained-call':        'warn',
 		// Do we need this?
-		'no-bitwise':                      'warn',
+		'no-bitwise':                      'off',
 		// This must be tested.
 		'no-mixed-operators':              'warn',
 		// I can't seem to find a good configuration.

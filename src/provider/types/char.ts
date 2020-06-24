@@ -11,9 +11,12 @@ export class CharType implements TypeProvider<string> {
 	parse (data: Buffer, offset: number): string {
 		const buffer = data.slice(offset, offset + this.getLength());
 		this.swap(buffer);
-		const result = buffer.toString(this.encoding());
-		this.swap(buffer);
-		return result;
+
+		try {
+			return buffer.toString(this.encoding());
+		} finally {
+			this.swap(buffer);
+		}
 	}
 
 	stringify (data: string): Buffer[] {

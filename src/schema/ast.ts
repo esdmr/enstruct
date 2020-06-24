@@ -8,7 +8,7 @@ class StringInspectable {
 	[inspect.custom] () { return this.toString(); }
 }
 
-class Statement extends StringInspectable { }
+abstract class Statement extends StringInspectable { }
 
 function multiDef (start: Location, end?: Location) {
 	const message = 'Multiple default type statements found.';

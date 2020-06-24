@@ -1,10 +1,10 @@
 import {
-	OptionStmt, RootEnv, StructProperty, StructStmt, Type,
-	TypeStmt,
+	OptionStatement, RootEnvironment, StructProperty, StructStatement,
+	TypeReference, TypeStatement,
 } from './ast';
 import { SchemaParserError } from './error';
 import type {
-	Location, ParserConfig, Result, TypeProviderStmt,
+	Location, ParserConfig, Result, TypedStatement,
 } from './typedef';
 
 const wrapExpect = <T extends (...args: never[]) => Result<unknown>> (
@@ -68,7 +68,7 @@ export class SchemaParser {
 		this.length = text.length;
 	}
 
-	start (): RootEnv {
+	start (): RootEnvironment {
 		this.position = this.config.position ?? 0;
 		this.expectSpacing();
 		const env = this.expectRootEnv();
@@ -233,12 +233,12 @@ export class SchemaParser {
 	}
 
 	@wrapExpect
-	private expectType (): Result<Type> {
+	private expectType (): Result<TypeReference> {
 		const identifier = this.expectRegex(this.regexIdentifier);
 		if (!identifier.state) return identifier;
 		const array = this.expectTypeArray();
 
-		const match = new Type(
+		const match = new TypeReference(
 			identifier.match,
 			array.state ? array.match : false,
 		);
@@ -268,7 +268,7 @@ export class SchemaParser {
 	}
 
 	@wrapExpect
-	private expectOption (): Result<OptionStmt> {
+	private expectOption (): Result<OptionStatement> {
 		const keyword = this.expectString(this.keywordOption);
 		if (!keyword.state) return keyword;
 		const space0 = this.expectSpacing();
@@ -281,14 +281,14 @@ export class SchemaParser {
 
 		return {
 			state: true,
-			match: new OptionStmt(identifier.match),
+			match: new OptionStatement(identifier.match),
 			start: keyword.start,
 			end:   terminator.end,
 		};
 	}
 
 	@wrapExpect
-	private expectAlias (): Result<TypeStmt> {
+	private expectAlias (): Result<TypeStatement> {
 		const keyword = this.expectString(this.keywordType);
 		if (!keyword.state) return keyword;
 		const identifier = this.expectAliasIdentifier();
@@ -305,7 +305,7 @@ export class SchemaParser {
 		const start = this.computeLocation(keyword.start);
 		const end = this.computeLocation(terminator.end);
 
-		const match = new TypeStmt(
+		const match = new TypeStatement(
 			identifier.state ? identifier.match : null,
 			type.match,
 			start,
@@ -329,7 +329,7 @@ export class SchemaParser {
 	}
 
 	@wrapExpect
-	private expectStruct (): Result<StructStmt> {
+	private expectStruct (): Result<StructStatement> {
 		const keyword = this.expectString(this.keywordStruct);
 		if (!keyword.state) return keyword;
 		const space = this.expectSpacing();
@@ -357,7 +357,7 @@ export class SchemaParser {
 
 		return {
 			state: true,
-			match: new StructStmt(name.match, props),
+			match: new StructStatement(name.match, props),
 			start: start.offset,
 			end:   end.offset,
 		};
@@ -386,7 +386,7 @@ export class SchemaParser {
 	}
 
 	@wrapExpect
-	private expectRootEnv (): Result<RootEnv> {
+	private expectRootEnv (): Result<RootEnvironment> {
 		const header = this.expectRootEnvHeader();
 		const options = header.state ? header.match : [];
 		this.expectSpacing();
@@ -397,15 +397,15 @@ export class SchemaParser {
 
 		return {
 			state: true,
-			match: new RootEnv(options, statements, start, end),
+			match: new RootEnvironment(options, statements, start, end),
 			start: start.offset,
 			end:   end.offset,
 		};
 	}
 
 	@wrapExpect
-	private expectRootEnvHeader (): Result<OptionStmt[]> {
-		const options: OptionStmt[] = [];
+	private expectRootEnvHeader (): Result<OptionStatement[]> {
+		const options: OptionStatement[] = [];
 		const start = this.position;
 
 		const initial = this.expectOption();
@@ -434,8 +434,8 @@ export class SchemaParser {
 	}
 
 	@wrapExpect
-	private expectRootEnvBody (): Result<TypeProviderStmt[]> {
-		const statements: TypeProviderStmt[] = [];
+	private expectRootEnvBody (): Result<TypedStatement[]> {
+		const statements: TypedStatement[] = [];
 		const initial = this.expectTypeProvider();
 
 		if (initial.state) {
@@ -462,7 +462,7 @@ export class SchemaParser {
 	}
 
 	@wrapExpect
-	private expectTypeProvider (): Result<TypeProviderStmt> {
+	private expectTypeProvider (): Result<TypedStatement> {
 		const struct = this.expectStruct();
 		if (struct.state) return struct;
 

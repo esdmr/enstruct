@@ -1,6 +1,6 @@
 import { inspect } from 'util';
 import { SchemaParserError } from './error';
-import type { Location, TypeMap, TypeProviderStmt } from './typedef';
+import type { Location, TypedStatementMap, TypedStatement } from './typedef';
 
 const indent = ' '.repeat(4);
 
@@ -25,7 +25,7 @@ function nullReference (ref: string, start: Location, end?: Location) {
 	throw new SchemaParserError(message, start, end);
 }
 
-export class Type extends StringInspectable {
+export class TypeReference extends StringInspectable {
 	constructor (
 		readonly name: string,
 		readonly array: boolean | number = false,
@@ -40,13 +40,13 @@ export class Type extends StringInspectable {
 	}
 }
 
-export class RootEnv extends StringInspectable {
-	readonly default?: TypeProviderStmt;
-	readonly typeMap: TypeMap = new Map();
+export class RootEnvironment extends StringInspectable {
+	readonly default?: TypedStatement;
+	readonly typeMap: TypedStatementMap = new Map();
 
 	constructor (
-		public options: OptionStmt[],
-		public types: TypeProviderStmt[],
+		public options: OptionStatement[],
+		public types: TypedStatement[],
 		private readonly start: Location,
 		private readonly end: Location,
 	) {
@@ -67,6 +67,14 @@ export class RootEnv extends StringInspectable {
 	}
 
 	validate (): void {
+		/*
+		 * //
+		 * const currentOptions = new Set();
+		 * for (const option of this.options) {
+		 * 	if (currentOptions.has(option.option));
+		 * }
+		 */
+
 		for (const type of this.types) {
 			type.validate(this.typeMap);
 		}
@@ -80,7 +88,7 @@ export class RootEnv extends StringInspectable {
 	}
 }
 
-export class OptionStmt extends Statement {
+export class OptionStatement extends Statement {
 	static INVALID_SYNTAX = 'Incorrect option statement.';
 
 	constructor (readonly option: string) { super(); }
@@ -90,13 +98,13 @@ export class OptionStmt extends Statement {
 	}
 }
 
-export class StructStmt extends Statement {
+export class StructStatement extends Statement {
 	constructor (
 		readonly name: string,
 		readonly props: StructProperty[],
 	) { super(); }
 
-	validate (typeMap: TypeMap): void {
+	validate (typeMap: TypedStatementMap): void {
 		for (const prop of this.props) {
 			prop.validate(typeMap);
 		}
@@ -117,12 +125,12 @@ export class StructStmt extends Statement {
 export class StructProperty extends StringInspectable {
 	constructor (
 		readonly name: string,
-		readonly type: Type,
+		readonly type: TypeReference,
 		private readonly start: Location,
 		private readonly end: Location,
 	) { super(); }
 
-	validate (typeMap: TypeMap): void {
+	validate (typeMap: TypedStatementMap): void {
 		if (!typeMap.has(this.type.name)) {
 			nullReference(this.type.name, this.start, this.end);
 		}
@@ -133,17 +141,17 @@ export class StructProperty extends StringInspectable {
 	}
 }
 
-export class TypeStmt extends Statement {
+export class TypeStatement extends Statement {
 	static INVALID_SYNTAX = 'Incorrect type statement.';
 
 	constructor (
 		readonly name: string | null,
-		readonly type: Type,
+		readonly type: TypeReference,
 		private readonly start: Location,
 		private readonly end: Location,
 	) { super(); }
 
-	validate (typeMap: TypeMap): void {
+	validate (typeMap: TypedStatementMap): void {
 		if (!typeMap.has(this.type.name)) {
 			nullReference(this.type.name, this.start, this.end);
 		}

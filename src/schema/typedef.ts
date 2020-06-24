@@ -1,5 +1,5 @@
 import type { SchemaParserError } from './error';
-import type { TypeStmt, StructStmt } from './ast';
+import type { TypeStatement, StructStatement } from './ast';
 
 export interface Location {
 	readonly offset: number;
@@ -26,5 +26,5 @@ interface FailureResult {
 	readonly start: number;
 }
 
-export type TypeProviderStmt = TypeStmt | StructStmt;
-export type TypeMap = Map<string, TypeProviderStmt>;
+export type TypedStatement = TypeStatement | StructStatement;
+export type TypedStatementMap = Map<string, TypedStatement>;

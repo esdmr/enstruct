@@ -41,7 +41,7 @@ export interface TypeProvider<Result = unknown> {
 	stringify (data: Result): Buffer[];
 }
 
-export interface DeepTypeData<Type> {
+export interface DeepTypeData<Type extends TypeProvider> {
 	offset: number;
 	type: Type;
 }
@@ -55,5 +55,5 @@ export interface DeepTypeProvider<
 		data: Buffer,
 		offset: number,
 		index: S
-	): DeepTypeData<Type[S]>;
+	): DeepTypeData<Type[S] & TypeProvider>;
 }

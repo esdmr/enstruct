@@ -6,10 +6,6 @@ export interface Location {
 	readonly column: number;
 }
 
-export interface ParserConfig {
-	readonly position?: number;
-}
-
 export type Result<T> = SuccessResult<T> | FailureResult;
 
 interface SuccessResult<T> {

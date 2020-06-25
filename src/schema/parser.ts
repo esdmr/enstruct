@@ -3,7 +3,7 @@ import {
 	TypeReference, DefaultTypeStatement, NamedTypeStatement, CompilableASTItem,
 } from './ast';
 import { SchemaParserError } from './error';
-import type { Location, ParserConfig, Result } from './typedef';
+import type { Location, Result } from './typedef';
 
 const wrapExpect = <T extends (...args: never[]) => Result<unknown>> (
 	_target: SchemaParser,
@@ -58,16 +58,12 @@ export class SchemaParser {
 	private length: number;
 	private newlineCache?: readonly number[];
 
-	constructor (
-		private readonly text: string,
-		private readonly config: ParserConfig = {},
-	) {
-		this.position = config.position ?? 0;
+	constructor (private readonly text: string) {
 		this.length = text.length;
 	}
 
-	start (): Schema {
-		this.position = this.config.position ?? 0;
+	start (position = 0): Schema {
+		this.position = position;
 		this.expectSpacing();
 		const env = this.expectRootEnv();
 		if (!env.state) throw env.message();

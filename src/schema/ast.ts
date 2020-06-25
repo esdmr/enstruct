@@ -12,7 +12,7 @@ export abstract class ASTItem {
 }
 
 export abstract class CompilableASTItem extends ASTItem {
-	abstract compile (environment: Environment): Environment;
+	abstract compile (environment: Environment): void;
 }
 
 export class Schema extends CompilableASTItem {
@@ -22,14 +22,12 @@ export class Schema extends CompilableASTItem {
 		readonly end: Location,
 	) { super(); }
 
-	compile (environment: Environment): Environment {
+	compile (environment: Environment): void {
 		for (const item of this.statements) {
 			if (item instanceof CompilableASTItem) {
 				item.compile(environment);
 			}
 		}
-
-		return environment;
 	}
 
 	toString (): string {
@@ -66,12 +64,16 @@ export class TypeReference extends ASTItem {
 	}
 }
 
-export class OptionStatement extends ASTItem {
+export class OptionStatement extends CompilableASTItem {
 	constructor (
 		private readonly name: string,
 		readonly start: Location,
 		readonly end: Location,
 	) { super(); }
+
+	compile (environment: Environment): void {
+		environment.applyOption(this.name);
+	}
 
 	toString (): string {
 		return `option ${this.name};`;
@@ -86,8 +88,8 @@ export class NamedTypeStatement extends CompilableASTItem {
 		readonly end: Location,
 	) { super(); }
 
-	compile (environment: Environment): Environment {
-		return environment.registerType(
+	compile (environment: Environment): void {
+		environment.types.set(
 			this.name,
 			this.type.constructTypeProvider(environment),
 		);
@@ -105,9 +107,8 @@ export class DefaultTypeStatement extends CompilableASTItem {
 		readonly end: Location,
 	) { super(); }
 
-	compile (environment: Environment): Environment {
+	compile (environment: Environment): void {
 		environment.default = this.type.constructTypeProvider(environment);
-		return environment;
 	}
 
 	toString (): string {
@@ -123,8 +124,8 @@ export class StructStatement extends CompilableASTItem {
 		readonly end: Location,
 	) { super(); }
 
-	compile (environment: Environment): Environment {
-		return environment.registerType(
+	compile (environment: Environment): void {
+		environment.types.set(
 			this.name,
 			new StructType(this.props.map((item) => [
 				item.name,

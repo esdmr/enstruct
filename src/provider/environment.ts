@@ -28,8 +28,8 @@ export const defaultBuiltins = new Map<string, TypeProvider>([
 	['uint64le', new BigIntType(64, 'LE', false)],
 ]);
 
-export const defaultOptions = {
-	be: new Map([
+const defaultOptions = new Map([
+	['be', new Map([
 		['char16', defaultBuiltins.get('char16be')],
 		['float32', defaultBuiltins.get('float32be')],
 		['float32', defaultBuiltins.get('float32be')],
@@ -42,8 +42,8 @@ export const defaultOptions = {
 		['uint32', defaultBuiltins.get('uint32be')],
 		['uint64', defaultBuiltins.get('uint64be')],
 		['uint8', defaultBuiltins.get('uint8be')],
-	]),
-	le: new Map([
+	])],
+	['le', new Map([
 		['char16', defaultBuiltins.get('char16le')],
 		['float32', defaultBuiltins.get('float32le')],
 		['float32', defaultBuiltins.get('float32le')],
@@ -56,12 +56,13 @@ export const defaultOptions = {
 		['uint32', defaultBuiltins.get('uint32le')],
 		['uint64', defaultBuiltins.get('uint64le')],
 		['uint8', defaultBuiltins.get('uint8le')],
-	]),
-} as const;
+	])],
+]);
 
 export class Environment {
-	private readonly builtins = new Map(defaultBuiltins);
-	private readonly types = new Map<string, TypeProvider>();
+	readonly builtins = new Map(defaultBuiltins);
+	readonly types = new Map<string, TypeProvider>();
+	readonly options = new Map(defaultOptions);
 	default?: TypeProvider;
 
 	constructor ({ clearBuiltins = false } = {}) {
@@ -75,29 +76,17 @@ export class Environment {
 		throw new Error('Type does not exist.');
 	}
 
-	registerType (name: string, value?: TypeProvider): this {
-		if (value == null) {
-			this.types.delete(name);
-		} else {
-			this.types.set(name, value);
-		}
+	applyOption (name: string): this {
+		const option = this.options.get(name);
 
-		return this;
-	}
-
-	defineBuiltin (name: string, value?: TypeProvider): this {
-		if (value == null) {
-			this.builtins.delete(name);
-		} else {
-			this.builtins.set(name, value);
-		}
-
-		return this;
-	}
-
-	applyOption (option: Iterable<[string, TypeProvider | undefined]>): this {
-		for (const item of option) {
-			this.defineBuiltin(...item);
+		if (option != null) {
+			for (const [key, value] of option) {
+				if (value == null) {
+					this.builtins.delete(key);
+				} else {
+					this.builtins.set(key, value);
+				}
+			}
 		}
 
 		return this;

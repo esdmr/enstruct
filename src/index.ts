@@ -44,20 +44,8 @@ export class Enstruct<T extends {[x: string]: unknown}> {
 		entry?: string | null | undefined,
 		indecies?: unknown[],
 	): unknown {
-		let currentType;
+		let currentType = this.environment.getType(entry ?? 'default');
 		let currentOffset = 0;
-
-		if (entry == null) {
-			const defaultType = this.environment.default;
-
-			if (defaultType == null) {
-				throw new Error('Entry point not set.');
-			}
-
-			currentType = defaultType;
-		} else {
-			currentType = this.environment.getType(entry);
-		}
 
 		for (const item of indecies ?? []) {
 			if (!isDeep(currentType)) {
@@ -71,6 +59,10 @@ export class Enstruct<T extends {[x: string]: unknown}> {
 		}
 
 		return currentType.parse(data, currentOffset);
+	}
+
+	stringify<K extends keyof T & string> (entry: K, data: T[K]): Buffer[] {
+		return this.environment.getType(entry).stringify(data);
 	}
 }
 

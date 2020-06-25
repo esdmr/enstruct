@@ -1,6 +1,6 @@
 import {
 	OptionStatement, Schema, StructProperty, StructStatement,
-	TypeReference, DefaultTypeStatement, NamedTypeStatement, CompilableASTItem,
+	TypeReference, TypeStatement, CompilableASTItem,
 } from './ast';
 import { SchemaParserError } from './error';
 import type { Location, Result } from './typedef';
@@ -295,7 +295,7 @@ export class SchemaParser {
 	}
 
 	@wrapExpect
-	private expectAlias (): Result<NamedTypeStatement | DefaultTypeStatement> {
+	private expectAlias (): Result<TypeStatement> {
 		const keyword = this.expectString(this.keywordType);
 		if (!keyword.state) return keyword;
 		const identifier = this.expectAliasIdentifier();
@@ -311,17 +311,11 @@ export class SchemaParser {
 		const location =
 			this.computeLocationVec2(keyword.start, terminator.end);
 
-		let match;
-
-		if (identifier.state) {
-			match = new NamedTypeStatement(
-				identifier.match,
-				type.match,
-				...location,
-			);
-		} else {
-			match = new DefaultTypeStatement(type.match, ...location);
-		}
+		const match = new TypeStatement(
+			identifier.state ? identifier.match : null,
+			type.match,
+			...location,
+		);
 
 		return {
 			state: true,

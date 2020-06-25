@@ -63,7 +63,6 @@ export class Environment {
 	readonly builtins = new Map(defaultBuiltins);
 	readonly types = new Map<string, TypeProvider>();
 	readonly options = new Map(defaultOptions);
-	default?: TypeProvider;
 
 	constructor ({ clearBuiltins = false } = {}) {
 		if (clearBuiltins) this.builtins.clear();

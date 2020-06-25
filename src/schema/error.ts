@@ -33,12 +33,7 @@ export class SchemaParserError extends Error {
 export class SchemaAstError extends SchemaParserError {
 	name = 'SchemaAstError';
 
-	static multiDef (start: Location, end?: Location): SchemaAstError {
-		const message = 'Multiple default type statements found.';
-		return new SchemaAstError(message, start, end);
-	}
-
-	static multiNamed (
+	static duplicateType (
 		name: string,
 		start: Location,
 		end?: Location,

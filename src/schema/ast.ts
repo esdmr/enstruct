@@ -80,9 +80,9 @@ export class OptionStatement extends CompilableASTItem {
 	}
 }
 
-export class NamedTypeStatement extends CompilableASTItem {
+export class TypeStatement extends CompilableASTItem {
 	constructor (
-		private readonly name: string,
+		private readonly name: string | null,
 		private readonly type: TypeReference,
 		readonly start: Location,
 		readonly end: Location,
@@ -90,29 +90,13 @@ export class NamedTypeStatement extends CompilableASTItem {
 
 	compile (environment: Environment): void {
 		environment.types.set(
-			this.name,
+			this.name ?? 'default',
 			this.type.constructTypeProvider(environment),
 		);
 	}
 
 	toString (): string {
-		return `type ${this.name} = ${this.type};`;
-	}
-}
-
-export class DefaultTypeStatement extends CompilableASTItem {
-	constructor (
-		private readonly type: TypeReference,
-		readonly start: Location,
-		readonly end: Location,
-	) { super(); }
-
-	compile (environment: Environment): void {
-		environment.default = this.type.constructTypeProvider(environment);
-	}
-
-	toString (): string {
-		return `type = ${this.type};`;
+		return `type ${this.name ?? 'default'} = ${this.type};`;
 	}
 }
 

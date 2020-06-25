@@ -1,35 +1,61 @@
+import { Location } from './typedef';
+import {
+	ArrayLenType, ArrayFixType, Environment, TypeProvider, StructType,
+} from '../provider';
 import { inspect } from 'util';
-import { SchemaParserError } from './error';
-import type { Location, TypedStatementMap, TypedStatement } from './typedef';
 
 const indent = ' '.repeat(4);
 
-class StringInspectable {
-	[inspect.custom] () { return this.toString(); }
+export abstract class ASTItem {
+	abstract toString (): string;
+	[inspect.custom] (): string { return this.toString(); }
 }
 
-abstract class Statement extends StringInspectable { }
-
-function multiDef (start: Location, end?: Location) {
-	const message = 'Multiple default type statements found.';
-	throw new SchemaParserError(message, start, end);
+export abstract class CompilableASTItem extends ASTItem {
+	abstract compile (environment: Environment): Environment;
 }
 
-function multiNamed (name: string, start: Location, end?: Location) {
-	const message = `Duplicate type statements '${name}' found.`;
-	throw new SchemaParserError(message, start, end);
-}
-
-function nullReference (ref: string, start: Location, end?: Location) {
-	const message = `Unexisting type reference '${ref}' found.`;
-	throw new SchemaParserError(message, start, end);
-}
-
-export class TypeReference extends StringInspectable {
+export class Schema extends CompilableASTItem {
 	constructor (
-		readonly name: string,
-		readonly array: boolean | number = false,
+		private readonly statements: ASTItem[],
+		readonly start: Location,
+		readonly end: Location,
 	) { super(); }
+
+	compile (environment: Environment): Environment {
+		for (const item of this.statements) {
+			if (item instanceof CompilableASTItem) {
+				item.compile(environment);
+			}
+		}
+
+		return environment;
+	}
+
+	toString (): string {
+		return this.statements.map((item) => item.toString()).join('\n');
+	}
+}
+
+export class TypeReference extends ASTItem {
+	constructor (
+		private readonly name: string,
+		private readonly array: boolean | number,
+		readonly start: Location,
+		readonly end: Location,
+	) { super(); }
+
+	constructTypeProvider (environment: Environment): TypeProvider {
+		const type = environment.getType(this.name);
+		const uint32 =
+			environment.getType('uint32', 'uint32be') as TypeProvider<number>;
+
+		switch (this.array) {
+			case false: return type;
+			case true: return new ArrayLenType(type, uint32);
+			default: return new ArrayFixType(type, this.array);
+		}
+	}
 
 	toString (): string {
 		switch (this.array) {
@@ -40,127 +66,88 @@ export class TypeReference extends StringInspectable {
 	}
 }
 
-export class RootEnvironment extends StringInspectable {
-	readonly default?: TypedStatement;
-	readonly typeMap: TypedStatementMap = new Map();
-
+export class OptionStatement extends ASTItem {
 	constructor (
-		public options: OptionStatement[],
-		public types: TypedStatement[],
-		private readonly start: Location,
-		private readonly end: Location,
-	) {
-		super();
-
-		for (const type of types) {
-			if (type.name == null) {
-				if (this.default != null) multiDef(this.start, this.end);
-				this.default = type;
-			} else {
-				if (this.typeMap.has(type.name)) {
-					multiNamed(type.name, this.start, this.end);
-				}
-
-				this.typeMap.set(type.name, type);
-			}
-		}
-	}
-
-	validate (): void {
-		/*
-		 * //
-		 * const currentOptions = new Set();
-		 * for (const option of this.options) {
-		 * 	if (currentOptions.has(option.option));
-		 * }
-		 */
-
-		for (const type of this.types) {
-			type.validate(this.typeMap);
-		}
-	}
-
-	toString (): string {
-		const str = [];
-		for (const option of this.options) str.push(option);
-		for (const type of this.types) str.push(type);
-		return str.join('\n');
-	}
-}
-
-export class OptionStatement extends Statement {
-	static INVALID_SYNTAX = 'Incorrect option statement.';
-
-	constructor (readonly option: string) { super(); }
-
-	toString (): string {
-		return `option ${this.option};`;
-	}
-}
-
-export class StructStatement extends Statement {
-	constructor (
-		readonly name: string,
-		readonly props: StructProperty[],
+		private readonly name: string,
+		readonly start: Location,
+		readonly end: Location,
 	) { super(); }
 
-	validate (typeMap: TypedStatementMap): void {
-		for (const prop of this.props) {
-			prop.validate(typeMap);
-		}
-	}
-
 	toString (): string {
-		const str = [`struct ${this.name} {`];
-
-		for (const prop of this.props) {
-			str.push(`${indent}${prop.toString()}`);
-		}
-
-		str.push('}');
-		return str.join('\n');
+		return `option ${this.name};`;
 	}
 }
 
-export class StructProperty extends StringInspectable {
+export class NamedTypeStatement extends CompilableASTItem {
+	constructor (
+		private readonly name: string,
+		private readonly type: TypeReference,
+		readonly start: Location,
+		readonly end: Location,
+	) { super(); }
+
+	compile (environment: Environment): Environment {
+		return environment.registerType(
+			this.name,
+			this.type.constructTypeProvider(environment),
+		);
+	}
+
+	toString (): string {
+		return `type ${this.name} = ${this.type};`;
+	}
+}
+
+export class DefaultTypeStatement extends CompilableASTItem {
+	constructor (
+		private readonly type: TypeReference,
+		readonly start: Location,
+		readonly end: Location,
+	) { super(); }
+
+	compile (environment: Environment): Environment {
+		environment.default = this.type.constructTypeProvider(environment);
+		return environment;
+	}
+
+	toString (): string {
+		return `type = ${this.type};`;
+	}
+}
+
+export class StructStatement extends CompilableASTItem {
+	constructor (
+		private readonly name: string,
+		private readonly props: StructProperty[],
+		readonly start: Location,
+		readonly end: Location,
+	) { super(); }
+
+	compile (environment: Environment): Environment {
+		return environment.registerType(
+			this.name,
+			new StructType(this.props.map((item) => [
+				item.name,
+				item.type.constructTypeProvider(environment),
+			])),
+		);
+	}
+
+	toString (): string {
+		const props = this.props.map((item) => indent + item.toString());
+		return `struct ${this.name} {\n${props.join('\n')}\n}`;
+	}
+}
+
+export class StructProperty extends ASTItem {
 	constructor (
 		readonly name: string,
 		readonly type: TypeReference,
-		private readonly start: Location,
-		private readonly end: Location,
+		readonly start: Location,
+		readonly end: Location,
 	) { super(); }
 
-	validate (typeMap: TypedStatementMap): void {
-		if (!typeMap.has(this.type.name)) {
-			nullReference(this.type.name, this.start, this.end);
-		}
-	}
-
 	toString (): string {
-		return `${this.type} ${this.name};`;
-	}
-}
-
-export class TypeStatement extends Statement {
-	static INVALID_SYNTAX = 'Incorrect type statement.';
-
-	constructor (
-		readonly name: string | null,
-		readonly type: TypeReference,
-		private readonly start: Location,
-		private readonly end: Location,
-	) { super(); }
-
-	validate (typeMap: TypedStatementMap): void {
-		if (!typeMap.has(this.type.name)) {
-			nullReference(this.type.name, this.start, this.end);
-		}
-	}
-
-	toString (): string {
-		switch (this.name) {
-			case null: return `type = ${this.type};`;
-			default: return `type ${this.name} = ${this.type};`;
-		}
+		return `${this.type} ${this.name}`;
 	}
 }

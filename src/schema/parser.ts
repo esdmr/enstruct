@@ -1,11 +1,9 @@
 import {
-	OptionStatement, RootEnvironment, StructProperty, StructStatement,
-	TypeReference, TypeStatement,
+	OptionStatement, Schema, StructProperty, StructStatement,
+	TypeReference, DefaultTypeStatement, NamedTypeStatement, CompilableASTItem,
 } from './ast';
 import { SchemaParserError } from './error';
-import type {
-	Location, ParserConfig, Result, TypedStatement,
-} from './typedef';
+import type { Location, ParserConfig, Result } from './typedef';
 
 const wrapExpect = <T extends (...args: never[]) => Result<unknown>> (
 	_target: SchemaParser,
@@ -68,7 +66,7 @@ export class SchemaParser {
 		this.length = text.length;
 	}
 
-	start (): RootEnvironment {
+	start (): Schema {
 		this.position = this.config.position ?? 0;
 		this.expectSpacing();
 		const env = this.expectRootEnv();
@@ -110,6 +108,11 @@ export class SchemaParser {
 		return { offset, row, column };
 	}
 
+	private computeLocationVec2 (start: number, end: number):
+	[Location, Location] {
+		return [this.computeLocation(start), this.computeLocation(end)];
+	}
+
 	@wrapExpect
 	private expectString<T extends string> (
 		text: T,
@@ -128,6 +131,7 @@ export class SchemaParser {
 				end:   this.position,
 			};
 		}
+
 		const message = () => SchemaParserError.
 			expectedString(text, this.computeLocation(startPosition));
 
@@ -151,6 +155,7 @@ export class SchemaParser {
 
 		if (result == null) {
 			regex.lastIndex = oldLastIndex;
+
 			const message = () => SchemaParserError.
 				expectedRegEx(regex, this.computeLocation(startPosition));
 
@@ -182,15 +187,14 @@ export class SchemaParser {
 				end:   this.position,
 			};
 		}
-		const start = this.computeLocation(this.position);
-		const end = this.computeLocation(this.length);
+		const location = this.computeLocationVec2(this.position, this.length);
 		const message = () => SchemaParserError.
-			expected('End Of File', start, end);
+			expected('End Of File', ...location);
 
 		return {
 			state:   false,
 			message: message,
-			start:   start.offset,
+			start:   location[0].offset,
 		};
 	}
 
@@ -237,10 +241,15 @@ export class SchemaParser {
 		const identifier = this.expectRegex(this.regexIdentifier);
 		if (!identifier.state) return identifier;
 		const array = this.expectTypeArray();
+		const location = this.computeLocationVec2(
+			identifier.start,
+			array.state ? array.end : identifier.end,
+		);
 
 		const match = new TypeReference(
 			identifier.match,
 			array.state ? array.match : false,
+			...location,
 		);
 
 		return {
@@ -278,17 +287,19 @@ export class SchemaParser {
 		this.expectSpacing();
 		const terminator = this.expectString(this.symbolStmtTerminator);
 		if (!terminator.state) throw terminator.message();
+		const location =
+			this.computeLocationVec2(keyword.start, terminator.end);
 
 		return {
 			state: true,
-			match: new OptionStatement(identifier.match),
-			start: keyword.start,
-			end:   terminator.end,
+			match: new OptionStatement(identifier.match, ...location),
+			start: location[0].offset,
+			end:   location[1].offset,
 		};
 	}
 
 	@wrapExpect
-	private expectAlias (): Result<TypeStatement> {
+	private expectAlias (): Result<NamedTypeStatement | DefaultTypeStatement> {
 		const keyword = this.expectString(this.keywordType);
 		if (!keyword.state) return keyword;
 		const identifier = this.expectAliasIdentifier();
@@ -301,22 +312,26 @@ export class SchemaParser {
 		this.expectSpacing();
 		const terminator = this.expectString(this.symbolStmtTerminator);
 		if (!terminator.state) throw terminator.message();
+		const location =
+			this.computeLocationVec2(keyword.start, terminator.end);
 
-		const start = this.computeLocation(keyword.start);
-		const end = this.computeLocation(terminator.end);
+		let match;
 
-		const match = new TypeStatement(
-			identifier.state ? identifier.match : null,
-			type.match,
-			start,
-			end,
-		);
+		if (identifier.state) {
+			match = new NamedTypeStatement(
+				identifier.match,
+				type.match,
+				...location,
+			);
+		} else {
+			match = new DefaultTypeStatement(type.match, ...location);
+		}
 
 		return {
 			state: true,
 			match: match,
-			start: start.offset,
-			end:   end.offset,
+			start: location[0].offset,
+			end:   location[1].offset,
 		};
 	}
 
@@ -352,14 +367,13 @@ export class SchemaParser {
 		const right = this.expectString(this.symbolRightStruct);
 		if (!right.state) throw right.message();
 
-		const start = this.computeLocation(keyword.start);
-		const end = this.computeLocation(right.end);
+		const location = this.computeLocationVec2(keyword.start, right.end);
 
 		return {
 			state: true,
-			match: new StructStatement(name.match, props),
-			start: start.offset,
-			end:   end.offset,
+			match: new StructStatement(name.match, props, ...location),
+			start: location[0].offset,
+			end:   location[1].offset,
 		};
 	}
 
@@ -386,7 +400,7 @@ export class SchemaParser {
 	}
 
 	@wrapExpect
-	private expectRootEnv (): Result<RootEnvironment> {
+	private expectRootEnv (): Result<Schema> {
 		const header = this.expectRootEnvHeader();
 		const options = header.state ? header.match : [];
 		this.expectSpacing();
@@ -397,7 +411,7 @@ export class SchemaParser {
 
 		return {
 			state: true,
-			match: new RootEnvironment(options, statements, start, end),
+			match: new Schema([...options, ...statements], start, end),
 			start: start.offset,
 			end:   end.offset,
 		};
@@ -434,8 +448,8 @@ export class SchemaParser {
 	}
 
 	@wrapExpect
-	private expectRootEnvBody (): Result<TypedStatement[]> {
-		const statements: TypedStatement[] = [];
+	private expectRootEnvBody (): Result<CompilableASTItem[]> {
+		const statements: CompilableASTItem[] = [];
 		const initial = this.expectTypeProvider();
 
 		if (initial.state) {
@@ -462,7 +476,7 @@ export class SchemaParser {
 	}
 
 	@wrapExpect
-	private expectTypeProvider (): Result<TypedStatement> {
+	private expectTypeProvider (): Result<CompilableASTItem> {
 		const struct = this.expectStruct();
 		if (struct.state) return struct;
 

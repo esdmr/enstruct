@@ -1,5 +1,4 @@
 import type { SchemaParserError } from './error';
-import type { TypeStatement, StructStatement } from './ast';
 
 export interface Location {
 	readonly offset: number;
@@ -25,6 +24,3 @@ interface FailureResult {
 	message (): SchemaParserError;
 	readonly start: number;
 }
-
-export type TypedStatement = TypeStatement | StructStatement;
-export type TypedStatementMap = Map<string, TypedStatement>;

@@ -2,7 +2,7 @@ import {
 	Endianness,
 	TypeProvider,
 } from '../../typedef';
-import { read, write } from '../../buffer-helpers';
+import { read, write } from '../../helpers';
 
 export class BigIntType implements TypeProvider<bigint> {
 	constructor (

@@ -5,4 +5,4 @@ Made with typescript. Currently a WIP.
 
 ## License
 This project is licensed under MIT.
-See opensource libraries used [here](https://github/esdmr/enstruct/network/dependencies)
+See opensource libraries used [here](https://github.com/esdmr/enstruct/network/dependencies)

@@ -3,6 +3,9 @@ import {
 } from './types';
 import { TypeProvider } from './typedef';
 
+const uint32be = new IntegerType(32, 'BE', false);
+const uint32le = new IntegerType(32, 'LE', false);
+
 export const defaultBuiltins = new Map<string, TypeProvider>([
 	['bool', new BooleanType()],
 	['char8', new CharType(8)],
@@ -19,11 +22,13 @@ export const defaultBuiltins = new Map<string, TypeProvider>([
 	['sint32le', new IntegerType(32, 'LE', true)],
 	['sint64be', new BigIntType(64, 'BE', true)],
 	['sint64le', new BigIntType(64, 'LE', true)],
+	['arrsizebe', uint32be],
+	['arrsizele', uint32le],
 	['uint8', new IntegerType(8, 'BE', false)],
 	['uint16be', new IntegerType(16, 'BE', false)],
 	['uint16le', new IntegerType(16, 'LE', false)],
-	['uint32be', new IntegerType(32, 'BE', false)],
-	['uint32le', new IntegerType(32, 'LE', false)],
+	['uint32be', uint32be],
+	['uint32le', uint32le],
 	['uint64be', new BigIntType(64, 'BE', false)],
 	['uint64le', new BigIntType(64, 'LE', false)],
 ]);
@@ -37,11 +42,10 @@ const defaultOptions = new Map([
 		['sint16', defaultBuiltins.get('sint16be')],
 		['sint32', defaultBuiltins.get('sint32be')],
 		['sint64', defaultBuiltins.get('sint64be')],
-		['sint8', defaultBuiltins.get('sint8be')],
+		['arrsize', defaultBuiltins.get('arrsizebe')],
 		['uint16', defaultBuiltins.get('uint16be')],
 		['uint32', defaultBuiltins.get('uint32be')],
 		['uint64', defaultBuiltins.get('uint64be')],
-		['uint8', defaultBuiltins.get('uint8be')],
 	])],
 	['le', new Map([
 		['char16', defaultBuiltins.get('char16le')],
@@ -51,11 +55,10 @@ const defaultOptions = new Map([
 		['sint16', defaultBuiltins.get('sint16le')],
 		['sint32', defaultBuiltins.get('sint32le')],
 		['sint64', defaultBuiltins.get('sint64le')],
-		['sint8', defaultBuiltins.get('sint8le')],
+		['arrsize', defaultBuiltins.get('arrsizele')],
 		['uint16', defaultBuiltins.get('uint16le')],
 		['uint32', defaultBuiltins.get('uint32le')],
 		['uint64', defaultBuiltins.get('uint64le')],
-		['uint8', defaultBuiltins.get('uint8le')],
 	])],
 ]);
 

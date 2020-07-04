@@ -45,12 +45,12 @@ export class TypeReference extends ASTItem {
 
 	constructTypeProvider (environment: Environment): TypeProvider {
 		const type = environment.getType(this.name);
-		const uint32 =
-			environment.getType('uint32', 'uint32be') as TypeProvider<number>;
+		const size =
+			environment.getType('arrsize', 'arrsizebe') as TypeProvider<number>;
 
 		switch (this.array) {
 			case false: return type;
-			case true: return new ArrayLenType(type, uint32);
+			case true: return new ArrayLenType(type, size);
 			default: return new ArrayFixType(type, this.array);
 		}
 	}

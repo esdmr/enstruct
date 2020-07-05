@@ -10,7 +10,7 @@ module.exports = {
 		'plugin:@typescript-eslint/eslint-recommended',
 		'plugin:@typescript-eslint/recommended',
 	],
-	parser:        '@typescript-eslint/parser',
+	parser: '@typescript-eslint/parser',
 	parserOptions: {
 		ecmaVersion: 11,
 		project:     './tsconfig.json',
@@ -19,10 +19,6 @@ module.exports = {
 	rules:   {
 		'@typescript-eslint/brace-style': ['error', '1tbs', {
 			allowSingleLine: true,
-		}],
-
-		'@typescript-eslint/indent': ['error', 'tab', {
-			SwitchCase: 1,
 		}],
 
 		'@typescript-eslint/lines-between-class-members': ['error', 'always', {
@@ -94,6 +90,7 @@ module.exports = {
 		'@typescript-eslint/semi':                        ['error', 'always'],
 		'@typescript-eslint/space-before-function-paren': 'error',
 
+		'@typescript-eslint/indent':   'off',
 		'comma-spacing':               'off',
 		'default-param-last':          'off',
 		'dot-notation':                'off',

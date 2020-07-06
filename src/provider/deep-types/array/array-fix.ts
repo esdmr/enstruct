@@ -1,4 +1,4 @@
-import { indexOutOfBounds, incorrectLength } from '../../error';
+import { incorrectLength, indexOutOfBounds } from '../../error';
 import type {
 	DeepTypeData, DeepTypeProvider, TypeProvider,
 } from '../../typedef';

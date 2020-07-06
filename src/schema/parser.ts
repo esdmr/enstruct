@@ -1,6 +1,6 @@
 import {
-	OptionStatement, Schema, StructProperty, StructStatement,
-	TypeReference, TypeStatement, CompilableASTItem,
+	CompilableASTItem, OptionStatement, Schema, StructProperty, StructStatement,
+	TypeReference, TypeStatement,
 } from './ast';
 import { SchemaParserError } from './error';
 import type { Location, Result } from './typedef';

@@ -1,7 +1,7 @@
+import { indexOutOfBounds, unexpectedProvider } from '../../error';
 import type {
 	DeepTypeData, DeepTypeProvider, TypeProvider,
 } from '../../typedef';
-import { indexOutOfBounds, unexpectedProvider } from '../../error';
 import { IntegerType } from '../../types/number/integer';
 
 const intType = new IntegerType(8, true, false);

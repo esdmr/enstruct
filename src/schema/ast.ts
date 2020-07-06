@@ -1,8 +1,8 @@
-import type { Location } from './typedef';
-import {
-	ArrayLenType, ArrayFixType, Environment, TypeProvider, StructType,
-} from '../provider';
 import { inspect } from 'util';
+import {
+	ArrayFixType, ArrayLenType, Environment, StructType, TypeProvider,
+} from '../provider';
+import type { Location } from './typedef';
 
 const indent = ' '.repeat(4);
 

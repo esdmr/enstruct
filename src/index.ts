@@ -1,5 +1,5 @@
+import { DeepTypeProvider, Environment, TypeProvider } from './provider';
 import { SchemaParser } from './schema';
-import { DeepTypeProvider, TypeProvider, Environment } from './provider';
 import type { GetValue } from './typedef';
 
 function isDeep (type: TypeProvider): type is DeepTypeProvider {
@@ -59,4 +59,4 @@ export class Enstruct<T extends {[x: string]: unknown}> {
 	}
 }
 
-export { TypeProvider, DeepTypeProvider } from './provider/typedef';
+export { DeepTypeProvider, TypeProvider } from './provider/typedef';

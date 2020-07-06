@@ -1,5 +1,5 @@
-import type { DeepTypeData, DeepTypeProvider, TypeProvider } from '../typedef';
 import { undefinedIndex } from '../error';
+import type { DeepTypeData, DeepTypeProvider, TypeProvider } from '../typedef';
 
 export class StructType implements DeepTypeProvider {
 	constructor (private readonly struct: [string, TypeProvider][]) { }

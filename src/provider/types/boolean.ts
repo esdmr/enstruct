@@ -1,5 +1,5 @@
-import type { TypeProvider } from '../typedef';
 import { alloc } from '../helpers';
+import type { TypeProvider } from '../typedef';
 
 // INFO: This should be converted to namespace when TypeScript/#420 closes.
 export class BooleanType implements TypeProvider {

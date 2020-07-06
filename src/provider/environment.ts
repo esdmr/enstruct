@@ -1,5 +1,6 @@
 import type { TypeProvider } from './typedef';
 import { BigIntType, BooleanType, FloatType, IntegerType } from './types';
+import { ProviderError } from './error';
 
 const uint32be = new IntegerType(32, false, false);
 const uint32le = new IntegerType(32, false, true);
@@ -68,7 +69,7 @@ export class Environment {
 		const type = this.types.get(name) ?? this.builtins.get(name);
 		if (type != null) return type;
 		if (fallback != null) return this.getType(fallback);
-		throw new Error(`Type '${name}' does not exist.`);
+		throw new ProviderError(`Type '${name}' does not exist.`);
 	}
 
 	applyOption (name: string): this {

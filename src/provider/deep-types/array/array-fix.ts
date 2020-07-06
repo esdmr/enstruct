@@ -1,14 +1,17 @@
-import { incorrectLength, indexOutOfBounds } from '../../error';
+import {
+	incorrectLength, indexOutOfBounds, unexpectedProvider,
+} from '../../error';
 import type {
 	DeepTypeData, DeepTypeProvider, TypeProvider,
 } from '../../typedef';
+import { checkInt } from '../../helpers';
 
 export class ArrayFixType implements DeepTypeProvider {
 	constructor (
 		private type: TypeProvider,
 		private length: number,
 	) {
-		this.checkInt(length, 'length');
+		checkInt(length, 'length');
 	}
 
 	getLength (data: DataView, offset: number): number {
@@ -33,8 +36,9 @@ export class ArrayFixType implements DeepTypeProvider {
 		return result;
 	}
 
-	stringify (data: readonly unknown[]): ArrayBuffer[] {
+	stringify (data: unknown): ArrayBuffer[] {
 		const buffers: ArrayBuffer[][] = [];
+		if (!Array.isArray(data)) throw unexpectedProvider('data', 'array');
 
 		if (data.length !== this.length) {
 			throw incorrectLength(this.length, data.length);
@@ -49,7 +53,7 @@ export class ArrayFixType implements DeepTypeProvider {
 
 	getIndex (data: DataView, offset: number, index: number): DeepTypeData {
 		let currentOffset = offset;
-		this.checkInt(index, 'index');
+		checkInt(index, 'index');
 		if (index > this.length) throw indexOutOfBounds(index);
 
 		for (let iteration = 0; true; iteration++) {
@@ -58,12 +62,6 @@ export class ArrayFixType implements DeepTypeProvider {
 			}
 
 			currentOffset += this.type.getLength(data, currentOffset);
-		}
-	}
-
-	private checkInt (int: number, what = 'integer') {
-		if (int < 0 || !isFinite(int) || int % 1 !== 0) {
-			throw new RangeError(`Given ${what} is incorrect.`);
 		}
 	}
 }

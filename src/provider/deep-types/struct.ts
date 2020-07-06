@@ -1,4 +1,4 @@
-import { undefinedIndex } from '../error';
+import { undefinedIndex, unexpectedType } from '../error';
 import type { DeepTypeData, DeepTypeProvider, TypeProvider } from '../typedef';
 
 export class StructType implements DeepTypeProvider {
@@ -25,13 +25,11 @@ export class StructType implements DeepTypeProvider {
 
 	stringify (data: unknown): ArrayBuffer[] {
 		const buffers: ArrayBuffer[][] = [];
-
-		if (typeof data !== 'object') {
-			throw new TypeError('Data is not an object.');
-		}
-
-		if (data == null) throw new TypeError('Data is null.');
 		const record = data as Record<string, unknown>;
+
+		if (typeof data !== 'object' || data == null) {
+			throw unexpectedType('data', 'object');
+		}
 
 		for (const [key, value] of this.struct) {
 			if (!Object.prototype.hasOwnProperty.call(data, key)) {

@@ -1,6 +1,5 @@
-import {
-	indexOutOfBounds, unexpectedProvider, unexpectedType,
-} from '../../error';
+import { indexOutOfBounds, unexpectedType } from '../../error';
+import { getItemLength, checkInt } from '../../helpers';
 import type {
 	DeepTypeData, DeepTypeProvider, TypeProvider,
 } from '../../typedef';
@@ -12,7 +11,7 @@ export class ArrayLenType implements DeepTypeProvider {
 	) { }
 
 	getLength (data: DataView, offset: number): number {
-		const itemLength = this.getItemLength(data, offset);
+		const itemLength = getItemLength(this.lengthType, data, offset);
 		let length = this.lengthType.getLength(data, offset);
 
 		for (let index = 0; index < itemLength; index++) {
@@ -23,7 +22,7 @@ export class ArrayLenType implements DeepTypeProvider {
 	}
 
 	parse (data: DataView, offset: number): unknown[] {
-		const itemLength = this.getItemLength(data, offset);
+		const itemLength = getItemLength(this.lengthType, data, offset);
 		const result: unknown[] = [];
 		let currentOffset = offset + this.lengthType.getLength(data, offset);
 
@@ -36,10 +35,7 @@ export class ArrayLenType implements DeepTypeProvider {
 	}
 
 	stringify (data: unknown): ArrayBuffer[] {
-		if (typeof data !== 'object' || !(data instanceof Array)) {
-			throw unexpectedType('data', 'array');
-		}
-
+		if (!Array.isArray(data)) throw unexpectedType('data', 'array');
 		const buffers = [this.lengthType.stringify(data.length)];
 
 		for (const item of data) {
@@ -50,8 +46,8 @@ export class ArrayLenType implements DeepTypeProvider {
 	}
 
 	getIndex (data: DataView, offset: number, index: number): DeepTypeData {
-		const itemLength = this.getItemLength(data, offset);
-		this.checkInt(index, 'index');
+		const itemLength = getItemLength(this.lengthType, data, offset);
+		checkInt(index, 'index');
 		if (index >= itemLength) throw indexOutOfBounds(index);
 		let currentOffset = offset;
 		currentOffset += this.lengthType.getLength(data, offset);
@@ -62,23 +58,6 @@ export class ArrayLenType implements DeepTypeProvider {
 			}
 
 			currentOffset += this.type.getLength(data, currentOffset);
-		}
-	}
-
-	private getItemLength (data: DataView, offset: number): number {
-		const itemLength = this.lengthType.parse(data, offset);
-
-		if (typeof itemLength !== 'number') {
-			throw unexpectedProvider('itemLength', 'number');
-		}
-
-		this.checkInt(itemLength, 'length');
-		return itemLength;
-	}
-
-	private checkInt (int: number, what = 'integer') {
-		if (int < 0 || !isFinite(int) || int % 1 !== 0) {
-			throw new RangeError(`Given ${what} is incorrect.`);
 		}
 	}
 }

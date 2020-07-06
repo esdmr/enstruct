@@ -1,5 +1,8 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 
+import { unexpectedProvider, ProviderError } from './error';
+import { TypeProvider } from './typedef';
+
 export function alloc (size: number) {
 	return new DataView(new ArrayBuffer(size));
 }
@@ -41,3 +44,29 @@ export const bufferSet = {
 		64: (buf: DataView) => buf.setFloat64,
 	},
 } as const;
+
+export function checkInt (int: number, what = 'integer') {
+	if (int < 0 || !isFinite(int) || int % 1 !== 0) {
+		throw new ProviderError(`Given ${what} is incorrect.`);
+	}
+}
+
+export function getItemLength (
+	lengthType: TypeProvider,
+	data: DataView,
+	offset: number,
+): number {
+	const itemLength = lengthType.parse(data, offset);
+
+	if (typeof itemLength !== 'number') {
+		throw unexpectedProvider('itemLength', 'number');
+	}
+
+	checkInt(itemLength, 'length');
+	return itemLength;
+}
+
+type Class<T> = new (...args: never) => T;
+export function isInstanceOf<T> (obj: unknown, klass: Class<T>): obj is T {
+	return typeof obj === 'object' && obj instanceof klass;
+}

@@ -7,11 +7,15 @@ import type { Location, Result } from './typedef';
 
 const wrapExpect = <T extends (...args: never[]) => Result<unknown>> (
 	_target: SchemaParser,
-	_propertyKey: string | symbol,
+	propertyKey: string | symbol,
 	descriptor: TypedPropertyDescriptor<T>,
 ) => {
 	const func = descriptor.value;
 	if (func == null) throw new TypeError('Cannot wrap null or undefined.');
+
+	if (typeof propertyKey === 'string' && !propertyKey.startsWith('expect')) {
+		throw new Error('Function name must start with expect.');
+	}
 
 	descriptor.value = function wrapped (
 		this: SchemaParser,

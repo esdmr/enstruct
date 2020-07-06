@@ -132,6 +132,6 @@ export class StructProperty extends ASTItem {
 	) { super(); }
 
 	toString (): string {
-		return `${this.type} ${this.name}`;
+		return `${this.type} ${this.name};`;
 	}
 }

@@ -1,16 +1,13 @@
-import {
-	DeepTypeData, DeepTypeProvider, TypeProvider, ParseType,
-} from '../../typedef';
-import { IndexOutOfBoundError } from '../../error';
+import { indexOutOfBounds, incorrectLength } from '../../error';
+import { DeepTypeData, DeepTypeProvider, TypeProvider } from '../../typedef';
 
-export class ArrayFixType<T extends TypeProvider>
-implements DeepTypeProvider<T[], number, ParseType<T>[]> {
+export class ArrayFixType implements DeepTypeProvider {
 	constructor (
-		private type: T,
+		private type: TypeProvider,
 		private length: number,
 	) { }
 
-	getLength (data: Buffer, offset: number): number {
+	getLength (data: DataView, offset: number): number {
 		let length = 0;
 
 		for (let index = 0; index < this.length; index++) {
@@ -20,7 +17,7 @@ implements DeepTypeProvider<T[], number, ParseType<T>[]> {
 		return length;
 	}
 
-	parse (data: Buffer, offset: number): ParseType<T>[] {
+	parse (data: DataView, offset: number): unknown[] {
 		const result: unknown[] = [];
 		let currentOffset = offset;
 
@@ -29,14 +26,14 @@ implements DeepTypeProvider<T[], number, ParseType<T>[]> {
 			currentOffset += this.type.getLength(data, currentOffset);
 		}
 
-		return result as ParseType<T>[];
+		return result;
 	}
 
-	stringify (data: ParseType<T>[]): Buffer[] {
-		const buffers: Buffer[][] = [];
+	stringify (data: readonly unknown[]): ArrayBuffer[] {
+		const buffers: ArrayBuffer[][] = [];
 
 		if (data.length !== this.length) {
-			throw new IndexOutOfBoundError(String(this.length));
+			throw incorrectLength(this.length, data.length);
 		}
 
 		for (const item of data) {
@@ -46,12 +43,9 @@ implements DeepTypeProvider<T[], number, ParseType<T>[]> {
 		return buffers.flat();
 	}
 
-	getIndex (data: Buffer, offset: number, index: number): DeepTypeData<T> {
+	getIndex (data: DataView, offset: number, index: number): DeepTypeData {
 		let currentOffset = offset;
-
-		if (index > this.length) {
-			throw new IndexOutOfBoundError(String(index));
-		}
+		if (index > this.length) throw indexOutOfBounds(index);
 
 		for (let iteration = 0; iteration < this.length; iteration++) {
 			if (iteration === index) {
@@ -61,6 +55,6 @@ implements DeepTypeProvider<T[], number, ParseType<T>[]> {
 			currentOffset += this.type.getLength(data, currentOffset);
 		}
 
-		throw new IndexOutOfBoundError(String(index));
+		throw indexOutOfBounds(index);
 	}
 }

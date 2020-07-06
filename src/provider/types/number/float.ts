@@ -1,24 +1,21 @@
-import {
-	Endianness,
-	TypeProvider,
-} from '../../typedef';
-import { read, write } from '../../helpers';
+import { alloc, bufferGet, bufferSet } from '../../helpers';
+import { TypeProvider } from '../../typedef';
 
-export class FloatType implements TypeProvider<number> {
+export class FloatType implements TypeProvider {
 	constructor (
 		private readonly size: 32 | 64,
-		private readonly endianness: Endianness,
+		private readonly le = false,
 	) { }
 
 	getLength (): number { return this.size / 8; }
 
-	parse (data: Buffer, offset: number): number {
-		return read[this.endianness].float[this.size](data, offset);
+	parse (data: DataView, offset: number): number {
+		return bufferGet.float[this.size](data)(offset, this.le);
 	}
 
-	stringify (data: number): Buffer[] {
-		const buffer = Buffer.alloc(this.getLength());
-		write[this.endianness].float[this.size](buffer, data);
-		return [buffer];
+	stringify (data: number): ArrayBuffer[] {
+		const buffer = alloc(this.getLength());
+		bufferSet.float[this.size](buffer)(0, data, this.le);
+		return [buffer.buffer];
 	}
 }

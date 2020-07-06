@@ -1,26 +1,23 @@
-import {
-	Endianness,
-	TypeProvider,
-} from '../../typedef';
-import { read, write } from '../../helpers';
+import { alloc, bufferGet, bufferSet } from '../../helpers';
+import { TypeProvider } from '../../typedef';
 
-export class IntegerType implements TypeProvider<number> {
+export class IntegerType implements TypeProvider {
 	constructor (
 		private readonly size: 8 | 16 | 32,
-		private readonly endianness: Endianness = 'BE',
-		private readonly signed = true,
+		private readonly signed: boolean,
+		private readonly le = false,
 	) { }
 
 	getLength (): number { return this.size / 8; }
 
-	parse (data: Buffer, offset: number): number {
-		const func = read[this.endianness][this.signed ? 1 : 0][this.size];
-		return func(data, offset);
+	parse (data: DataView, offset: number): number {
+		const func = bufferGet[this.signed ? 1 : 0][this.size](data);
+		return func(offset, this.le);
 	}
 
-	stringify (data: number): Buffer[] {
-		const buffer = Buffer.alloc(this.getLength());
-		write[this.endianness][this.signed ? 1 : 0][this.size](buffer, data);
-		return [buffer];
+	stringify (data: number): ArrayBuffer[] {
+		const buffer = alloc(this.getLength());
+		bufferSet[this.signed ? 1 : 0][this.size](buffer)(0, data, this.le);
+		return [buffer.buffer];
 	}
 }

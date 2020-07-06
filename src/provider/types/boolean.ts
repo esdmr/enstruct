@@ -1,14 +1,17 @@
 import { TypeProvider } from '../typedef';
-// INFO: This should be converted to namespace when TypeScript/#420 closes.
+import { alloc } from '../helpers';
 
-export class BooleanType implements TypeProvider<boolean> {
+// INFO: This should be converted to namespace when TypeScript/#420 closes.
+export class BooleanType implements TypeProvider {
 	getLength (): number { return 1; }
 
-	parse (data: Buffer, offset: number): boolean {
-		return data.readUInt8(offset) > 0;
+	parse (data: DataView, offset: number): boolean {
+		return data.getUint8(offset) > 0;
 	}
 
-	stringify (data: boolean): Buffer[] {
-		return [Buffer.of(data ? 1 : 0)];
+	stringify (data: boolean): ArrayBuffer[] {
+		const buffer = alloc(1);
+		buffer.setUint8(0, data ? 1 : 0);
+		return [buffer.buffer];
 	}
 }

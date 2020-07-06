@@ -1,35 +1,40 @@
 import { DeepTypeData, DeepTypeProvider, TypeProvider } from '../../typedef';
-import { IndexOutOfBoundError } from '../../error';
+import { indexOutOfBounds, unexpectedProvider } from '../../error';
 import { IntegerType } from '../../types/number/integer';
 
-export class BufferLenType
-implements DeepTypeProvider<IntegerType[], number, Buffer> {
-	private readonly intType = new IntegerType(8, 'BE', false);
+const intType = new IntegerType(8, true, false);
 
-	constructor (private readonly lengthType: TypeProvider<number>) { }
+export class BufferLenType implements DeepTypeProvider {
+	constructor (private readonly lengthType: TypeProvider) { }
 
-	getLength (data: Buffer, offset: number): number {
+	getLength (data: DataView, offset: number): number {
 		return this.lengthType.getLength(data, offset) +
-			this.lengthType.parse(data, offset);
+			this.getItemLength(data, offset);
 	}
 
-	parse (data: Buffer, offset: number): Buffer {
-		const itemLength = this.getLength(data, offset);
-		return data.slice(offset, offset + itemLength);
+	parse (buffer: DataView, offset: number): ArrayBuffer {
+		const lengthSize = this.lengthType.getLength(buffer, offset);
+		const totalSize = lengthSize + this.getItemLength(buffer, offset);
+		return buffer.buffer.slice(offset + lengthSize, offset + totalSize);
 	}
 
-	stringify (data: Buffer): Buffer[] {
-		return [...this.lengthType.stringify(data.length), data];
+	stringify (data: ArrayBuffer): ArrayBuffer[] {
+		return [...this.lengthType.stringify(data.byteLength), data];
 	}
 
-	getIndex (data: Buffer, offset: number, index: number):
-	DeepTypeData<IntegerType> {
+	getIndex (data: DataView, offset: number, index: number): DeepTypeData {
+		const itemLength = this.getItemLength(data, offset);
+		if (index >= itemLength) throw indexOutOfBounds(index);
+		return { offset: offset + index, type: intType };
+	}
+
+	private getItemLength (data: DataView, offset: number) {
 		const itemLength = this.lengthType.parse(data, offset);
 
-		if (index >= itemLength) {
-			throw new IndexOutOfBoundError(String(index));
+		if (typeof itemLength !== 'number') {
+			throw unexpectedProvider('lengthType', 'number');
 		}
 
-		return { offset: offset + index, type: this.intType };
+		return itemLength;
 	}
 }

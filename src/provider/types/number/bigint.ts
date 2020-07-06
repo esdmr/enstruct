@@ -1,25 +1,21 @@
-import {
-	Endianness,
-	TypeProvider,
-} from '../../typedef';
-import { read, write } from '../../helpers';
+import { alloc, bufferGet, bufferSet } from '../../helpers';
+import { TypeProvider } from '../../typedef';
 
-export class BigIntType implements TypeProvider<bigint> {
+export class BigIntType implements TypeProvider {
 	constructor (
-		_size?: 64,
-		private readonly endianness: Endianness = 'BE',
-		private readonly signed = true,
+		private readonly signed: boolean,
+		private readonly le = false,
 	) { }
 
 	getLength (): number { return 8; }
 
-	parse (data: Buffer, offset: number): bigint {
-		return read[this.endianness][this.signed ? 1 : 0][64](data, offset);
+	parse (buffer: DataView, offset: number): bigint {
+		return bufferGet[this.signed ? 1 : 0][64](buffer)(offset, this.le);
 	}
 
-	stringify (data: bigint): Buffer[] {
-		const buffer = Buffer.alloc(8);
-		write[this.endianness][this.signed ? 1 : 0][64](buffer, data);
-		return [buffer];
+	stringify (data: bigint): ArrayBuffer[] {
+		const buffer = alloc(8);
+		bufferSet[this.signed ? 1 : 0][64](buffer)(0, data, this.le);
+		return [buffer.buffer];
 	}
 }

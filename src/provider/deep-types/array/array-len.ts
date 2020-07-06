@@ -1,18 +1,15 @@
-import {
-	DeepTypeData, DeepTypeProvider, TypeProvider, ParseType,
-} from '../../typedef';
-import { IndexOutOfBoundError } from '../../error';
+import { indexOutOfBounds, unexpectedProvider } from '../../error';
+import { DeepTypeData, DeepTypeProvider, TypeProvider } from '../../typedef';
 
-export class ArrayLenType<T extends TypeProvider>
-implements DeepTypeProvider<T[], number, ParseType<T>[]> {
+export class ArrayLenType implements DeepTypeProvider {
 	constructor (
-		private type: T,
-		private lengthType: TypeProvider<number>,
+		private type: TypeProvider,
+		private lengthType: TypeProvider,
 	) { }
 
-	getLength (data: Buffer, offset: number): number {
+	getLength (data: DataView, offset: number): number {
+		const itemLength = this.getItemLength(data, offset);
 		let length = this.lengthType.getLength(data, offset);
-		const itemLength = this.lengthType.parse(data, offset);
 
 		for (let index = 0; index < itemLength; index++) {
 			length += this.type.getLength(data, offset + length);
@@ -21,24 +18,21 @@ implements DeepTypeProvider<T[], number, ParseType<T>[]> {
 		return length;
 	}
 
-	parse (data: Buffer, offset: number): ParseType<T>[] {
-		const itemLength = this.lengthType.parse(data, offset);
+	parse (data: DataView, offset: number): unknown[] {
+		const itemLength = this.getItemLength(data, offset);
 		const result: unknown[] = [];
-		let currentOffset = offset;
-		currentOffset += this.lengthType.getLength(data, offset);
+		let currentOffset = offset + this.lengthType.getLength(data, offset);
 
 		for (let index = 0; index < itemLength; index++) {
 			result[index] = this.type.parse(data, currentOffset);
 			currentOffset += this.type.getLength(data, currentOffset);
 		}
 
-		return result as ParseType<T>[];
+		return result;
 	}
 
-	stringify (data: ParseType<T>[]): Buffer[] {
-		const buffers: Buffer[][] = [
-			this.lengthType.stringify(data.length),
-		];
+	stringify (data: unknown[]): ArrayBuffer[] {
+		const buffers = [this.lengthType.stringify(data.length)];
 
 		for (const item of data) {
 			buffers.push(this.type.stringify(item));
@@ -47,13 +41,9 @@ implements DeepTypeProvider<T[], number, ParseType<T>[]> {
 		return buffers.flat();
 	}
 
-	getIndex (data: Buffer, offset: number, index: number): DeepTypeData<T> {
-		const itemLength = this.lengthType.parse(data, offset);
-
-		if (index >= itemLength) {
-			throw new IndexOutOfBoundError(String(index));
-		}
-
+	getIndex (data: DataView, offset: number, index: number): DeepTypeData {
+		const itemLength = this.getItemLength(data, offset);
+		if (index >= itemLength) throw indexOutOfBounds(index);
 		let currentOffset = offset;
 		currentOffset += this.lengthType.getLength(data, offset);
 
@@ -66,6 +56,16 @@ implements DeepTypeProvider<T[], number, ParseType<T>[]> {
 		}
 
 		// Never gets executed.
-		throw new IndexOutOfBoundError(String(index));
+		throw indexOutOfBounds(index);
+	}
+
+	private getItemLength (data: DataView, offset: number): number {
+		const itemLength = this.lengthType.parse(data, offset);
+
+		if (typeof itemLength !== 'number') {
+			throw unexpectedProvider('itemLength', 'number');
+		}
+
+		return itemLength;
 	}
 }

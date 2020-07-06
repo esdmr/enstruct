@@ -1,20 +1,28 @@
 import { TypeProvider } from '../typedef';
+import { unexpectedProvider, unexpectedType } from '../error';
 
-export class StringLenType implements TypeProvider<string> {
-	constructor (
-		private readonly bufferType: TypeProvider<Buffer>,
-		private readonly encoding?: Parameters<Buffer['toString']>[0],
-	) { }
+const encoder = new TextEncoder();
+const decoder = new TextDecoder();
 
-	getLength (data: Buffer, offset: number): number {
+export class StringLenType implements TypeProvider {
+	constructor (private readonly bufferType: TypeProvider) { }
+
+	getLength (data: DataView, offset: number): number {
 		return this.bufferType.getLength(data, offset);
 	}
 
-	parse (data: Buffer, offset: number): string {
-		return this.bufferType.parse(data, offset).toString(this.encoding);
+	parse (buffer: DataView, offset: number): string {
+		const parsed = this.bufferType.parse(buffer, offset);
+
+		if (typeof parsed !== 'object' || !(parsed instanceof ArrayBuffer)) {
+			throw unexpectedProvider('bufferType', 'ArrayBuffer');
+		}
+
+		return decoder.decode(parsed);
 	}
 
-	stringify (data: string): Buffer[] {
-		return this.bufferType.stringify(Buffer.from(data, this.encoding));
+	stringify (data: unknown): ArrayBuffer[] {
+		if (typeof data !== 'string') throw unexpectedType('data', 'string');
+		return this.bufferType.stringify(encoder.encode(data).buffer);
 	}
 }

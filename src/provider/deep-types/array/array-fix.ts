@@ -1,5 +1,7 @@
 import { indexOutOfBounds, incorrectLength } from '../../error';
-import { DeepTypeData, DeepTypeProvider, TypeProvider } from '../../typedef';
+import type {
+	DeepTypeData, DeepTypeProvider, TypeProvider,
+} from '../../typedef';
 
 export class ArrayFixType implements DeepTypeProvider {
 	constructor (

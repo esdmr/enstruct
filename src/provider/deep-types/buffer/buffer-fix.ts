@@ -1,5 +1,5 @@
 import { indexOutOfBounds } from '../../error';
-import { DeepTypeData, DeepTypeProvider } from '../../typedef';
+import type { DeepTypeData, DeepTypeProvider } from '../../typedef';
 import { IntegerType } from '../../types/number/integer';
 
 const intType = new IntegerType(8, false);

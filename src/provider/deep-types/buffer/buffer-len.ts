@@ -1,4 +1,6 @@
-import { DeepTypeData, DeepTypeProvider, TypeProvider } from '../../typedef';
+import type {
+	DeepTypeData, DeepTypeProvider, TypeProvider,
+} from '../../typedef';
 import { indexOutOfBounds, unexpectedProvider } from '../../error';
 import { IntegerType } from '../../types/number/integer';
 

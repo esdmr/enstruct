@@ -1,4 +1,4 @@
-import { TypeProvider } from '../typedef';
+import type { TypeProvider } from '../typedef';
 import { unexpectedProvider, unexpectedType } from '../error';
 
 const encoder = new TextEncoder();

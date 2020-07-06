@@ -1,5 +1,5 @@
 import { alloc, bufferGet, bufferSet } from '../../helpers';
-import { TypeProvider } from '../../typedef';
+import type { TypeProvider } from '../../typedef';
 
 export class FloatType implements TypeProvider {
 	constructor (

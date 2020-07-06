@@ -1,4 +1,4 @@
-import { TypeProvider } from '../typedef';
+import type { TypeProvider } from '../typedef';
 import { alloc } from '../helpers';
 
 // INFO: This should be converted to namespace when TypeScript/#420 closes.

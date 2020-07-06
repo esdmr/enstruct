@@ -1,4 +1,4 @@
-import { Location } from './typedef';
+import type { Location } from './typedef';
 import {
 	ArrayLenType, ArrayFixType, Environment, TypeProvider, StructType,
 } from '../provider';

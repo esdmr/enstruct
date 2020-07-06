@@ -1,6 +1,6 @@
 import { SchemaParser } from './schema';
 import { DeepTypeProvider, TypeProvider, Environment } from './provider';
-import { GetValue } from './typedef';
+import type { GetValue } from './typedef';
 
 function isDeep (type: TypeProvider): type is DeepTypeProvider {
 	return Object.prototype.hasOwnProperty.call(type, 'getIndex');

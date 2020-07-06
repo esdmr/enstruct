@@ -1,4 +1,4 @@
-import { DeepTypeData, DeepTypeProvider, TypeProvider } from '../typedef';
+import type { DeepTypeData, DeepTypeProvider, TypeProvider } from '../typedef';
 import { undefinedIndex } from '../error';
 
 export class StructType implements DeepTypeProvider {

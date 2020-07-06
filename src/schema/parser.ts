@@ -42,12 +42,6 @@ export class SchemaParser {
 	private readonly symbolStmtTerminator = ';';
 	private readonly symbolTypeAssignment = '=';
 
-	private readonly OPTION_INVALID_SYNTAX = 'Incorrect option statement.';
-	private readonly STRUCT_INVALID_PROP = 'Invalid struct property.';
-	private readonly STRUCT_INVALID_SYNTAX = 'Incorrect struct statement.';
-	private readonly STRUCT_MISSING_SEMI = 'Missing semicolon in struct.';
-	private readonly TYPE_INVALID_SYNTAX = 'Incorrect type statement.';
-
 	private readonly OPTION_ONLY_AT_TOP =
 	'Option statements are only allowed at top.';
 
@@ -183,6 +177,7 @@ export class SchemaParser {
 				end:   this.position,
 			};
 		}
+
 		const location = this.computeLocationVec2(this.position, this.length);
 		const message = () => SchemaParserError.
 			expected('End Of File', ...location);
@@ -349,9 +344,9 @@ export class SchemaParser {
 
 		while (true) {
 			const property = this.expectStructProperty();
+			this.expectSpacing();
 			if (!property.state) break;
 			props.push(property.match);
-			this.expectSpacing();
 		}
 
 		const right = this.expectString(this.symbolRightStruct);

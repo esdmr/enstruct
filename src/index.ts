@@ -20,28 +20,20 @@ export class Enstruct<T extends {[x: string]: unknown}> {
 		return this;
 	}
 
-	parse (data: Buffer, entry?: null | undefined): T['default'];
-
-	parse<K extends readonly (number | string)[]> (
-		data: Buffer,
-		entry: null | undefined,
-		indecies: K,
-	): GetValue<T['default'], K>;
-
 	parse<E extends keyof T>(
-		data: Buffer,
+		data: DataView,
 		entry: E,
 	): T[E];
 
 	parse<E extends keyof T, K extends readonly (number | string)[]>(
-		data: Buffer,
+		data: DataView,
 		entry: E,
 		indecies: K,
 	): GetValue<T[E], K>;
 
 	parse (
-		data: Buffer,
-		entry?: string | null | undefined,
+		data: DataView,
+		entry?: string | null,
 		indecies?: unknown[],
 	): unknown {
 		let currentType = this.environment.getType(entry ?? 'default');
@@ -61,12 +53,10 @@ export class Enstruct<T extends {[x: string]: unknown}> {
 		return currentType.parse(data, currentOffset);
 	}
 
-	stringify<K extends keyof T & string> (entry: K, data: T[K]): Buffer[] {
+	stringify<K extends keyof T & string> (entry: K, data: T[K]):
+	ArrayBuffer[] {
 		return this.environment.getType(entry).stringify(data);
 	}
 }
 
-export {
-	TypeProvider, DeepTypeData, DeepTypeProvider, ParseDeepType, ParseType,
-	Endianness,
-} from './provider/typedef';
+export { TypeProvider, DeepTypeProvider } from './provider/typedef';

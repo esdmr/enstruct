@@ -1,23 +1,25 @@
-export class IndexOutOfBoundError extends Error {
-	name = 'IndexOutOfBoundError';
-
-	constructor (
-		index: string,
-		message = `Index ${index} is out of bounds.`,
-	) {
-		super(message);
-	}
+export class ProviderError extends Error {
+	name = 'TypeProviderError';
 }
 
-export class UndefinedIndexError extends Error {
-	name = 'UndefinedIndexError';
+type PError = ProviderError;
 
-	constructor (index: string);
-	constructor (index: unknown, message: string);
-	constructor (
-		index: string,
-		message = `Index '${index}' does not exists on this type.`,
-	) {
-		super(message);
-	}
+export function indexOutOfBounds (index: number): PError {
+	return new ProviderError(`Index ${index} is out of bounds.`);
+}
+
+export function undefinedIndex (index: string): PError {
+	return new ProviderError(`Index '${index}' does not exists on this type.`);
+}
+
+export function unexpectedType (what: string, expected: string): PError {
+	return new ProviderError(`'${what}' must be a '${expected}'.`);
+}
+
+export function unexpectedProvider (what: string, expected: string): PError {
+	return new ProviderError(`'${what}' must be a '${expected}' provider.`);
+}
+
+export function incorrectLength (expected: number, got: number): PError {
+	return new ProviderError(`Expected ${expected} elements, Got ${got}.`);
 }

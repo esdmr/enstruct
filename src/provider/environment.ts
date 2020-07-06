@@ -3,38 +3,38 @@ import {
 } from './types';
 import { TypeProvider } from './typedef';
 
-const uint32be = new IntegerType(32, 'BE', false);
-const uint32le = new IntegerType(32, 'LE', false);
+const uint32be = new IntegerType(32, true, false);
+const uint32le = new IntegerType(32, false, false);
 
 export const defaultBuiltins = new Map<string, TypeProvider>([
 	['bool', new BooleanType()],
 	['char8', new CharType(8)],
-	['char16be', new CharType(16, 'BE')],
-	['char16le', new CharType(16, 'LE')],
-	['float32be', new FloatType(32, 'BE')],
-	['float32le', new FloatType(32, 'LE')],
-	['float64be', new FloatType(64, 'BE')],
-	['float64le', new FloatType(64, 'LE')],
-	['sint8', new IntegerType(8, 'BE', true)],
-	['sint16be', new IntegerType(16, 'BE', true)],
-	['sint16le', new IntegerType(16, 'LE', true)],
-	['sint32be', new IntegerType(32, 'BE', true)],
-	['sint32le', new IntegerType(32, 'LE', true)],
-	['sint64be', new BigIntType(64, 'BE', true)],
-	['sint64le', new BigIntType(64, 'LE', true)],
+	['char16be', new CharType(16, true)],
+	['char16le', new CharType(16, false)],
+	['float32be', new FloatType(32, true)],
+	['float32le', new FloatType(32, false)],
+	['float64be', new FloatType(64, true)],
+	['float64le', new FloatType(64, false)],
+	['sint8', new IntegerType(8, true, true)],
+	['sint16be', new IntegerType(16, true, true)],
+	['sint16le', new IntegerType(16, false, true)],
+	['sint32be', new IntegerType(32, true, true)],
+	['sint32le', new IntegerType(32, false, true)],
+	['sint64be', new BigIntType(64, true, true)],
+	['sint64le', new BigIntType(64, false, true)],
 	['arrsizebe', uint32be],
 	['arrsizele', uint32le],
-	['uint8', new IntegerType(8, 'BE', false)],
-	['uint16be', new IntegerType(16, 'BE', false)],
-	['uint16le', new IntegerType(16, 'LE', false)],
+	['uint8', new IntegerType(8, true, false)],
+	['uint16be', new IntegerType(16, true, false)],
+	['uint16le', new IntegerType(16, false, false)],
 	['uint32be', uint32be],
 	['uint32le', uint32le],
-	['uint64be', new BigIntType(64, 'BE', false)],
-	['uint64le', new BigIntType(64, 'LE', false)],
+	['uint64be', new BigIntType(true, false)],
+	['uint64le', new BigIntType(false, false)],
 ]);
 
 const defaultOptions = new Map([
-	['be', new Map([
+	[true, new Map([
 		['char16', defaultBuiltins.get('char16be')],
 		['float32', defaultBuiltins.get('float32be')],
 		['float32', defaultBuiltins.get('float32be')],
@@ -47,7 +47,7 @@ const defaultOptions = new Map([
 		['uint32', defaultBuiltins.get('uint32be')],
 		['uint64', defaultBuiltins.get('uint64be')],
 	])],
-	['le', new Map([
+	[false, new Map([
 		['char16', defaultBuiltins.get('char16le')],
 		['float32', defaultBuiltins.get('float32le')],
 		['float32', defaultBuiltins.get('float32le')],

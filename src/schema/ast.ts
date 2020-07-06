@@ -45,8 +45,7 @@ export class TypeReference extends ASTItem {
 
 	constructTypeProvider (environment: Environment): TypeProvider {
 		const type = environment.getType(this.name);
-		const size =
-			environment.getType('arrsize', 'arrsizebe') as TypeProvider<number>;
+		const size = environment.getType('arrsize', 'arrsizebe');
 
 		switch (this.array) {
 			case false: return type;

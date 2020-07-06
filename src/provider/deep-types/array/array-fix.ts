@@ -7,7 +7,9 @@ export class ArrayFixType implements DeepTypeProvider {
 	constructor (
 		private type: TypeProvider,
 		private length: number,
-	) { }
+	) {
+		this.checkInt(length, 'length');
+	}
 
 	getLength (data: DataView, offset: number): number {
 		let length = 0;
@@ -47,16 +49,21 @@ export class ArrayFixType implements DeepTypeProvider {
 
 	getIndex (data: DataView, offset: number, index: number): DeepTypeData {
 		let currentOffset = offset;
+		this.checkInt(index, 'index');
 		if (index > this.length) throw indexOutOfBounds(index);
 
-		for (let iteration = 0; iteration < this.length; iteration++) {
+		for (let iteration = 0; true; iteration++) {
 			if (iteration === index) {
 				return { offset: currentOffset, type: this.type };
 			}
 
 			currentOffset += this.type.getLength(data, currentOffset);
 		}
+	}
 
-		throw indexOutOfBounds(index);
+	private checkInt (int: number, what = 'integer') {
+		if (int < 0 || !isFinite(int) || int % 1 !== 0) {
+			throw new RangeError(`Given ${what} is incorrect.`);
+		}
 	}
 }

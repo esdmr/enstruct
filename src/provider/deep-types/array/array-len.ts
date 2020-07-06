@@ -1,4 +1,6 @@
-import { indexOutOfBounds, unexpectedProvider } from '../../error';
+import {
+	indexOutOfBounds, unexpectedProvider, unexpectedType,
+} from '../../error';
 import type {
 	DeepTypeData, DeepTypeProvider, TypeProvider,
 } from '../../typedef';
@@ -33,7 +35,11 @@ export class ArrayLenType implements DeepTypeProvider {
 		return result;
 	}
 
-	stringify (data: unknown[]): ArrayBuffer[] {
+	stringify (data: unknown): ArrayBuffer[] {
+		if (typeof data !== 'object' || !(data instanceof Array)) {
+			throw unexpectedType('data', 'array');
+		}
+
 		const buffers = [this.lengthType.stringify(data.length)];
 
 		for (const item of data) {
@@ -45,20 +51,18 @@ export class ArrayLenType implements DeepTypeProvider {
 
 	getIndex (data: DataView, offset: number, index: number): DeepTypeData {
 		const itemLength = this.getItemLength(data, offset);
+		this.checkInt(index, 'index');
 		if (index >= itemLength) throw indexOutOfBounds(index);
 		let currentOffset = offset;
 		currentOffset += this.lengthType.getLength(data, offset);
 
-		for (let iteration = 0; iteration < itemLength; iteration++) {
+		for (let iteration = 0; true; iteration++) {
 			if (iteration === index) {
 				return { offset: currentOffset, type: this.type };
 			}
 
 			currentOffset += this.type.getLength(data, currentOffset);
 		}
-
-		// Never gets executed.
-		throw indexOutOfBounds(index);
 	}
 
 	private getItemLength (data: DataView, offset: number): number {
@@ -68,6 +72,13 @@ export class ArrayLenType implements DeepTypeProvider {
 			throw unexpectedProvider('itemLength', 'number');
 		}
 
+		this.checkInt(itemLength, 'length');
 		return itemLength;
+	}
+
+	private checkInt (int: number, what = 'integer') {
+		if (int < 0 || !isFinite(int) || int % 1 !== 0) {
+			throw new RangeError(`Given ${what} is incorrect.`);
+		}
 	}
 }

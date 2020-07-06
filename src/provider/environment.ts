@@ -68,7 +68,7 @@ export class Environment {
 		const type = this.types.get(name) ?? this.builtins.get(name);
 		if (type != null) return type;
 		if (fallback != null) return this.getType(fallback);
-		throw new Error('Type does not exist.');
+		throw new Error(`Type '${name}' does not exist.`);
 	}
 
 	applyOption (name: string): this {

@@ -46,7 +46,10 @@ export const bufferSet = {
 } as const;
 
 export function checkInt (int: number, what = 'integer') {
-	if (int < 0 || !isFinite(int) || int % 1 !== 0) {
+	if (int < 0 ||
+		!isFinite(int) ||
+		int % 1 !== 0 ||
+		int > Number.MAX_SAFE_INTEGER) {
 		throw new ProviderError(`Given ${what} is incorrect.`);
 	}
 }

@@ -42,9 +42,10 @@ export class StructType implements DeepTypeProvider {
 		return buffers.flat();
 	}
 
-	getIndex (data: DataView, offset: number, index: string): DeepTypeData {
+	getIndex (data: DataView, offset: number, index: unknown): DeepTypeData {
 		let type: TypeProvider | undefined;
 		let currentOffset = offset;
+		if (typeof index !== 'string') throw unexpectedType('index', 'string');
 
 		for (const [key, value] of this.struct) {
 			if (key === index) {
@@ -56,7 +57,6 @@ export class StructType implements DeepTypeProvider {
 		}
 
 		if (type == null) throw undefinedIndex(index);
-
 		return { type: type, offset: currentOffset };
 	}
 }

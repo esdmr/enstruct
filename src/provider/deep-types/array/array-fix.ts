@@ -1,5 +1,5 @@
 import {
-	incorrectLength, indexOutOfBounds, unexpectedProvider,
+	incorrectLength, indexOutOfBounds, unexpectedProvider, unexpectedType,
 } from '../../error';
 import type {
 	DeepTypeData, DeepTypeProvider, TypeProvider,
@@ -51,8 +51,9 @@ export class ArrayFixType implements DeepTypeProvider {
 		return buffers.flat();
 	}
 
-	getIndex (data: DataView, offset: number, index: number): DeepTypeData {
+	getIndex (data: DataView, offset: number, index: unknown): DeepTypeData {
 		let currentOffset = offset;
+		if (typeof index !== 'number') throw unexpectedType('index', 'number');
 		checkInt(index, 'index');
 		if (index > this.length) throw indexOutOfBounds(index);
 

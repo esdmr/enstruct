@@ -45,8 +45,9 @@ export class ArrayLenType implements DeepTypeProvider {
 		return buffers.flat();
 	}
 
-	getIndex (data: DataView, offset: number, index: number): DeepTypeData {
+	getIndex (data: DataView, offset: number, index: unknown): DeepTypeData {
 		const itemLength = getItemLength(this.lengthType, data, offset);
+		if (typeof index !== 'number') throw unexpectedType('index', 'number');
 		checkInt(index, 'index');
 		if (index >= itemLength) throw indexOutOfBounds(index);
 		let currentOffset = offset;

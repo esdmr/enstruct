@@ -31,7 +31,8 @@ export class BufferLenType implements DeepTypeProvider {
 		return [...this.lengthType.stringify(data.byteLength), data];
 	}
 
-	getIndex (data: DataView, offset: number, index: number): DeepTypeData {
+	getIndex (data: DataView, offset: number, index: unknown): DeepTypeData {
+		if (typeof index !== 'number') throw unexpectedType('index', 'number');
 		checkInt(index);
 		const itemLength = getItemLength(this.lengthType, data, offset);
 		if (index >= itemLength) throw indexOutOfBounds(index);

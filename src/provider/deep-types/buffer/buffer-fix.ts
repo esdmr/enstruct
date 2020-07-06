@@ -26,7 +26,8 @@ export class BufferFixType implements DeepTypeProvider {
 		return [data];
 	}
 
-	getIndex (_data: DataView, offset: number, index: number): DeepTypeData {
+	getIndex (_data: DataView, offset: number, index: unknown): DeepTypeData {
+		if (typeof index !== 'number') throw unexpectedType('index', 'number');
 		checkInt(index, 'index');
 		if (index >= this.length) throw indexOutOfBounds(index);
 		return { offset: offset + index, type: intType };

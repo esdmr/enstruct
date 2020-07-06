@@ -47,7 +47,7 @@ export class Enstruct<T extends {[x: string]: unknown}> {
 			({
 				type: currentType,
 				offset: currentOffset,
-			} = currentType.getIndex(data, currentOffset, item as never));
+			} = currentType.getIndex(data, currentOffset, item));
 		}
 
 		return currentType.parse(data, currentOffset);

@@ -13,11 +13,11 @@ export function undefinedIndex (index: string): PError {
 }
 
 export function unexpectedType (what: string, expected: string): PError {
-	return new ProviderError(`'${what}' must be a '${expected}'.`);
+	return new ProviderError(`'${what}' must be a(n) '${expected}'.`);
 }
 
 export function unexpectedProvider (what: string, expected: string): PError {
-	return new ProviderError(`'${what}' must be a '${expected}' provider.`);
+	return new ProviderError(`'${what}' must be a(n) '${expected}' provider.`);
 }
 
 export function incorrectLength (expected: number, got: number): PError {

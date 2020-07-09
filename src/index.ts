@@ -1,12 +1,13 @@
 import { DeepTypeProvider, Environment, TypeProvider } from './provider';
 import { SchemaParser } from './schema';
 import type { GetValue } from './typedef';
+import { ArrayBufferArray } from './arraybuffer-array';
 
 function isDeep (type: TypeProvider): type is DeepTypeProvider {
 	return Object.prototype.hasOwnProperty.call(type, 'getIndex');
 }
 
-export class Enstruct<T extends {[x: string]: unknown}> {
+export default class Enstruct<T extends {[x: string]: unknown}> {
 	private readonly schemaParser: SchemaParser;
 	private readonly environment: Environment;
 
@@ -21,23 +22,24 @@ export class Enstruct<T extends {[x: string]: unknown}> {
 	}
 
 	parse<E extends keyof T>(
-		data: DataView,
+		data: ArrayBuffer | ArrayBufferView | ArrayBufferArray,
 		entry: E,
 	): T[E];
 
 	parse<E extends keyof T, K extends readonly (number | string)[]>(
-		data: DataView,
+		data: ArrayBuffer | ArrayBufferView | ArrayBufferArray,
 		entry: E,
 		indecies: K,
 	): GetValue<T[E], K>;
 
 	parse (
-		data: DataView,
-		entry?: string | null,
+		data: ArrayBuffer | ArrayBufferView,
+		entry: string,
 		indecies?: unknown[],
 	): unknown {
 		let currentType = this.environment.getType(entry ?? 'default');
 		let currentOffset = 0;
+		const buf = new DataView('buffer' in data ? data.buffer : data);
 
 		for (const item of indecies ?? []) {
 			if (!isDeep(currentType)) {
@@ -47,15 +49,16 @@ export class Enstruct<T extends {[x: string]: unknown}> {
 			({
 				type: currentType,
 				offset: currentOffset,
-			} = currentType.getIndex(data, currentOffset, item));
+			} = currentType.getIndex(buf, currentOffset, item));
 		}
 
-		return currentType.parse(data, currentOffset);
+		return currentType.parse(buf, currentOffset);
 	}
 
 	stringify<K extends keyof T & string> (entry: K, data: T[K]):
-	ArrayBuffer[] {
-		return this.environment.getType(entry).stringify(data);
+	ArrayBufferArray {
+		const array = this.environment.getType(entry).stringify(data);
+		return new ArrayBufferArray(array);
 	}
 }
 

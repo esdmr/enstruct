@@ -1,5 +1,3 @@
-if (module.parent == null) require('tap').end();
-
 exports.testTypeProvider = (tap, instance) => {
 	tap.test(':TypeProvider', async (tap) => {
 		tap.test('.getLength', async (tap) => {

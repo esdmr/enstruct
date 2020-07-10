@@ -20,7 +20,8 @@
     "prepare": "npm run clean && npm run build",
     "lint": "eslint src --ext .ts",
     "lint:fix": "eslint src --ext .ts --fix",
-    "test:tap": "tap"
+    "tap": "tap",
+    "tap:coverage": "tap --coverage-report=html"
   },
   "keywords": [
     "binary",

@@ -3,6 +3,9 @@ const { testTypeProvider } = require('../../../helper');
 const { IntegerType } =
 	require('../../../../build/provider/types/number/integer');
 
+const { ArrayBufferArray } =
+	require('../../../../build/arraybuffer-array');
+
 const buffer = new DataView(Uint8Array.of(0x12, 0x34, 0x56, 0x78).buffer);
 
 /**
@@ -70,6 +73,32 @@ tap.test('IntegerType', async (tap) => {
 				obj.values[0],
 				`must have correct output for ${obj.name}.`,
 			);
+		}
+	});
+
+	tap.test('.stringify', async (tap) => {
+		for (const obj of testList) {
+			tap.test(obj.name, async (tap) => {
+				const testBuf = obj.instance.stringify(obj.values[0]);
+				const bufArr = new ArrayBufferArray(testBuf);
+				const dview = bufArr.toDataView();
+				let state = true;
+
+				if (!tap.equal(
+					bufArr.byteLength,
+					obj.size,
+					'must have correct byteLength',
+				)) state = false;
+
+				for (let offset = 0; offset < obj.size && state; offset++) {
+					if (dview.getUint8(offset) !== buffer.getUint8(offset)) {
+						state = false;
+					}
+				}
+
+				tap.ok(state, 'output must have correct output');
+				tap.throws(() => obj.instance.stringify(null), 'Throws error.');
+			});
 		}
 	});
 });

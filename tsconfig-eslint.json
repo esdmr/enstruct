@@ -1,0 +1,38 @@
+{
+  "$schema": "http://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "allowJs": true,
+    "charset": "utf8",
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "importHelpers": true,
+    "module": "commonJS",
+    "moduleResolution": "node",
+    "newLine": "lf",
+    "pretty": true,
+    "experimentalDecorators": true,
+    "removeComments": true,
+    "resolveJsonModule": true,
+    "rootDir": ".",
+    "sourceMap": true,
+    "declaration": true,
+    "strict": true,
+    "target": "es2015",
+    "lib": [
+        "ES2019.Array",
+        "DOM"
+    ]
+  },
+  "include": [
+      "**/.*.js",
+      "**/*.js",
+      "**/*.ts",
+      "coverage-map.js",
+      "src",
+      "test"
+  ],
+  "exclude": [
+      "node_modules",
+      "build"
+  ]
+}

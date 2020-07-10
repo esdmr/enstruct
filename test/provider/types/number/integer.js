@@ -38,10 +38,13 @@ const testList = [
 
 for (const item of testList) {
 	const sign = item.args[1] ? 's' : 'u';
-	const endianness = item.args.length < 3 ? '' : item.args[2] ? 'le' : 'be';
 	item.instance = new IntegerType(...item.args);
-	item.name = `${sign}int${item.args[0]}${endianness}`;
+	item.name = `${sign}int${item.args[0]}`;
 	item.size = item.args[0] / 8;
+
+	if (item.args.length === 3) {
+		item.name += item.args[2] ? 'le' : 'be';
+	}
 }
 
 tap.test('IntegerType', async (tap) => {

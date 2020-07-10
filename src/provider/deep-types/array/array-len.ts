@@ -1,10 +1,10 @@
-import { indexOutOfBounds, unexpectedType } from '../../error';
-import { getItemLength, checkInt } from '../../helpers';
 import type {
 	DeepTypeData, DeepTypeProvider, TypeProvider,
 } from '../../typedef';
+import { checkInt, getItemLength } from '../../helpers';
+import { indexOutOfBounds, unexpectedType } from '../../error';
 
-export class ArrayLenType implements DeepTypeProvider {
+class ArrayLenType implements DeepTypeProvider {
 	constructor (
 		private type: TypeProvider,
 		private lengthType: TypeProvider,
@@ -62,3 +62,5 @@ export class ArrayLenType implements DeepTypeProvider {
 		}
 	}
 }
+
+export { ArrayLenType };

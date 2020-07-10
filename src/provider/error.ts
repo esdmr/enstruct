@@ -1,25 +1,30 @@
-export class ProviderError extends Error {
+class ProviderError extends Error {
 	name = 'TypeProviderError';
 }
 
 type PError = ProviderError;
 
-export function indexOutOfBounds (index: number): PError {
+function indexOutOfBounds (index: number): PError {
 	return new ProviderError(`Index ${index} is out of bounds.`);
 }
 
-export function undefinedIndex (index: string): PError {
+function undefinedIndex (index: string): PError {
 	return new ProviderError(`Index '${index}' does not exists on this type.`);
 }
 
-export function unexpectedType (what: string, expected: string): PError {
+function unexpectedType (what: string, expected: string): PError {
 	return new ProviderError(`'${what}' must be a(n) '${expected}'.`);
 }
 
-export function unexpectedProvider (what: string, expected: string): PError {
+function unexpectedProvider (what: string, expected: string): PError {
 	return new ProviderError(`'${what}' must be a(n) '${expected}' provider.`);
 }
 
-export function incorrectLength (expected: number, got: number): PError {
+function incorrectLength (expected: number, got: number): PError {
 	return new ProviderError(`Expected ${expected} elements, Got ${got}.`);
 }
+
+export {
+	ProviderError, indexOutOfBounds, undefinedIndex, unexpectedType,
+	unexpectedProvider, incorrectLength,
+};

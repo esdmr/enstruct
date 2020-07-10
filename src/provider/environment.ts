@@ -1,11 +1,11 @@
-import type { TypeProvider } from './typedef';
 import { BigIntType, BooleanType, FloatType, IntegerType } from './types';
 import { ProviderError } from './error';
+import type { TypeProvider } from './typedef';
 
 const uint32be = new IntegerType(32, false, false);
 const uint32le = new IntegerType(32, false, true);
 
-export const defaultBuiltins = new Map<string, TypeProvider>([
+const defaultBuiltins = new Map<string, TypeProvider>([
 	['bool', new BooleanType()],
 	['float32be', new FloatType(32, false)],
 	['float32le', new FloatType(32, true)],
@@ -56,7 +56,7 @@ const defaultOptions = new Map([
 	])],
 ]);
 
-export class Environment {
+class Environment {
 	readonly builtins = new Map(defaultBuiltins);
 	readonly types = new Map<string, TypeProvider>();
 	readonly options = new Map(defaultOptions);
@@ -88,3 +88,5 @@ export class Environment {
 		return this;
 	}
 }
+
+export { defaultBuiltins, defaultOptions, Environment };

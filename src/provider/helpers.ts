@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 
-import { unexpectedProvider, ProviderError } from './error';
+import { ProviderError, unexpectedProvider } from './error';
 import { TypeProvider } from './typedef';
 
-export function alloc (size: number) {
+function alloc (size: number) {
 	return new DataView(new ArrayBuffer(size));
 }
 
-export const bufferGet = {
+const bufferGet = {
 	0: {
 		8:  (buf: DataView) => buf.getUint8.bind(buf),
 		16: (buf: DataView) => buf.getUint16.bind(buf),
@@ -26,7 +26,7 @@ export const bufferGet = {
 	},
 } as const;
 
-export const bufferSet = {
+const bufferSet = {
 	0: {
 		8:  (buf: DataView) => buf.setUint8.bind(buf),
 		16: (buf: DataView) => buf.setUint16.bind(buf),
@@ -45,7 +45,7 @@ export const bufferSet = {
 	},
 } as const;
 
-export function checkInt (int: number, what = 'integer') {
+function checkInt (int: number, what = 'integer') {
 	if (int < 0 ||
 		!isFinite(int) ||
 		int % 1 !== 0 ||
@@ -54,7 +54,7 @@ export function checkInt (int: number, what = 'integer') {
 	}
 }
 
-export function getItemLength (
+function getItemLength (
 	lengthType: TypeProvider,
 	data: DataView,
 	offset: number,
@@ -66,10 +66,14 @@ export function getItemLength (
 	}
 
 	checkInt(itemLength, 'length');
+
 	return itemLength;
 }
 
 type Class<T> = new (...args: never) => T;
-export function isInstanceOf<T> (obj: unknown, klass: Class<T>): obj is T {
+
+function isInstanceOf<T> (obj: unknown, klass: Class<T>): obj is T {
 	return typeof obj === 'object' && obj instanceof klass;
 }
+
+export { alloc, bufferGet, bufferSet, checkInt, getItemLength, isInstanceOf };

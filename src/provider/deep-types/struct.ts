@@ -1,7 +1,7 @@
-import { undefinedIndex, unexpectedType } from '../error';
 import type { DeepTypeData, DeepTypeProvider, TypeProvider } from '../typedef';
+import { undefinedIndex, unexpectedType } from '../error';
 
-export class StructType implements DeepTypeProvider {
+class StructType implements DeepTypeProvider {
 	constructor (private readonly struct: [string, TypeProvider][]) { }
 
 	getLength (data: DataView, offset: number): number {
@@ -57,6 +57,9 @@ export class StructType implements DeepTypeProvider {
 		}
 
 		if (type == null) throw undefinedIndex(index);
+
 		return { type: type, offset: currentOffset };
 	}
 }
+
+export { StructType };

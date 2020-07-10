@@ -2,8 +2,8 @@ import {
 	CompilableASTItem, OptionStatement, Schema, StructProperty, StructStatement,
 	TypeReference, TypeStatement,
 } from './ast';
-import { SchemaParserError } from './error';
 import type { Location, Result } from './typedef';
+import { SchemaParserError } from './error';
 
 const wrapExpect = <T extends (...args: never[]) => Result<unknown>> (
 	_target: SchemaParser,
@@ -24,13 +24,14 @@ const wrapExpect = <T extends (...args: never[]) => Result<unknown>> (
 		const position = this.position;
 		const result = func.call(this, ...args);
 		if (!result.state) this.position = position;
+
 		return result;
 	} as T;
 
 	return descriptor;
 };
 
-export class SchemaParser {
+class SchemaParser {
 	private readonly keywordOption = 'option';
 	private readonly keywordStruct = 'struct';
 	private readonly keywordType = 'type';
@@ -68,15 +69,16 @@ export class SchemaParser {
 		this.expectSpacing();
 		const eof = this.expectEOF();
 		if (!eof.state) throw eof.message();
+
 		return env.match;
 	}
 
 	private getNewLinePositions (): readonly number[] {
 		if (this.newlineCache != null) return this.newlineCache;
-
 		const length = this.length;
 		const newline = '\n';
 		const positions: number[] = [];
+		this.newlineCache = positions;
 
 		for (let index = 0; index < length; index++) {
 			if (this.text[index] === newline) {
@@ -84,7 +86,6 @@ export class SchemaParser {
 			}
 		}
 
-		this.newlineCache = positions;
 		return positions;
 	}
 
@@ -118,6 +119,7 @@ export class SchemaParser {
 		if (substring === text) {
 			this.position += length;
 			const match = substring as T;
+
 			return {
 				state: true,
 				match: match,
@@ -183,6 +185,7 @@ export class SchemaParser {
 		}
 
 		const location = this.computeLocationVec2(this.position, this.length);
+
 		const message = () => SchemaParserError.
 			expected('End Of File', ...location);
 
@@ -236,6 +239,7 @@ export class SchemaParser {
 		const identifier = this.expectRegex(this.regexIdentifier);
 		if (!identifier.state) return identifier;
 		const array = this.expectTypeArray();
+
 		const location = this.computeLocationVec2(
 			identifier.start,
 			array.state ? array.end : identifier.end,
@@ -282,6 +286,7 @@ export class SchemaParser {
 		this.expectSpacing();
 		const terminator = this.expectString(this.symbolStmtTerminator);
 		if (!terminator.state) throw terminator.message();
+
 		const location =
 			this.computeLocationVec2(keyword.start, terminator.end);
 
@@ -307,6 +312,7 @@ export class SchemaParser {
 		this.expectSpacing();
 		const terminator = this.expectString(this.symbolStmtTerminator);
 		if (!terminator.state) throw terminator.message();
+
 		const location =
 			this.computeLocationVec2(keyword.start, terminator.end);
 
@@ -329,6 +335,7 @@ export class SchemaParser {
 		const space = this.expectSpacing();
 		if (!space.state) return space;
 		const identifier = this.expectIdentifier();
+
 		return identifier;
 	}
 
@@ -355,7 +362,6 @@ export class SchemaParser {
 
 		const right = this.expectString(this.symbolRightStruct);
 		if (!right.state) throw right.message();
-
 		const location = this.computeLocationVec2(keyword.start, right.end);
 
 		return {
@@ -376,7 +382,6 @@ export class SchemaParser {
 		if (!name.state) throw name.message();
 		const terminator = this.expectString(this.symbolStmtTerminator);
 		if (!terminator.state) throw terminator.message();
-
 		const start = this.computeLocation(type.start);
 		const end = this.computeLocation(terminator.end);
 
@@ -410,7 +415,6 @@ export class SchemaParser {
 	private expectRootEnvHeader (): Result<OptionStatement[]> {
 		const options: OptionStatement[] = [];
 		const start = this.position;
-
 		const initial = this.expectOption();
 		if (!initial.state) return initial;
 		options.push(initial.match);
@@ -468,10 +472,8 @@ export class SchemaParser {
 	private expectTypeProvider (): Result<CompilableASTItem> {
 		const struct = this.expectStruct();
 		if (struct.state) return struct;
-
 		const alias = this.expectAlias();
 		if (alias.state) return alias;
-
 		const option = this.expectString(this.keywordOption);
 
 		if (option.state) {
@@ -489,3 +491,5 @@ export class SchemaParser {
 		};
 	}
 }
+
+export { SchemaParser };

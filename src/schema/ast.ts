@@ -1,21 +1,21 @@
-import { inspect } from 'util';
 import {
 	ArrayFixType, ArrayLenType, Environment, StructType, TypeProvider,
 } from '../provider';
 import type { Location } from './typedef';
+import { inspect } from 'util';
 
 const indent = ' '.repeat(4);
 
-export abstract class ASTItem {
+abstract class ASTItem {
 	abstract toString (): string;
 	[inspect.custom] (): string { return this.toString(); }
 }
 
-export abstract class CompilableASTItem extends ASTItem {
+abstract class CompilableASTItem extends ASTItem {
 	abstract compile (environment: Environment): void;
 }
 
-export class Schema extends CompilableASTItem {
+class Schema extends CompilableASTItem {
 	constructor (
 		private readonly statements: ASTItem[],
 		readonly start: Location,
@@ -35,7 +35,7 @@ export class Schema extends CompilableASTItem {
 	}
 }
 
-export class TypeReference extends ASTItem {
+class TypeReference extends ASTItem {
 	constructor (
 		private readonly name: string,
 		private readonly array: boolean | number,
@@ -63,7 +63,7 @@ export class TypeReference extends ASTItem {
 	}
 }
 
-export class OptionStatement extends CompilableASTItem {
+class OptionStatement extends CompilableASTItem {
 	constructor (
 		private readonly name: string,
 		readonly start: Location,
@@ -79,7 +79,7 @@ export class OptionStatement extends CompilableASTItem {
 	}
 }
 
-export class TypeStatement extends CompilableASTItem {
+class TypeStatement extends CompilableASTItem {
 	constructor (
 		private readonly name: string | null,
 		private readonly type: TypeReference,
@@ -99,7 +99,7 @@ export class TypeStatement extends CompilableASTItem {
 	}
 }
 
-export class StructStatement extends CompilableASTItem {
+class StructStatement extends CompilableASTItem {
 	constructor (
 		private readonly name: string,
 		private readonly props: StructProperty[],
@@ -119,11 +119,12 @@ export class StructStatement extends CompilableASTItem {
 
 	toString (): string {
 		const props = this.props.map((item) => indent + item.toString());
+
 		return `struct ${this.name} {\n${props.join('\n')}\n}`;
 	}
 }
 
-export class StructProperty extends ASTItem {
+class StructProperty extends ASTItem {
 	constructor (
 		readonly name: string,
 		readonly type: TypeReference,
@@ -135,3 +136,8 @@ export class StructProperty extends ASTItem {
 		return `${this.type} ${this.name};`;
 	}
 }
+
+export {
+	ASTItem, CompilableASTItem, Schema, TypeReference, OptionStatement,
+	TypeStatement, StructStatement, StructProperty,
+};

@@ -4,7 +4,7 @@ import type { TypeProvider } from '../typedef';
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
 
-export class StringLenType implements TypeProvider {
+class StringLenType implements TypeProvider {
 	constructor (private readonly bufferType: TypeProvider) { }
 
 	getLength (data: DataView, offset: number): number {
@@ -23,6 +23,9 @@ export class StringLenType implements TypeProvider {
 
 	stringify (data: unknown): ArrayBuffer[] {
 		if (typeof data !== 'string') throw unexpectedType('data', 'string');
+
 		return this.bufferType.stringify(encoder.encode(data).buffer);
 	}
 }
+
+export { StringLenType };

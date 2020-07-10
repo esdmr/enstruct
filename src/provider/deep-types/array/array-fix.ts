@@ -1,12 +1,12 @@
-import {
-	incorrectLength, indexOutOfBounds, unexpectedProvider, unexpectedType,
-} from '../../error';
 import type {
 	DeepTypeData, DeepTypeProvider, TypeProvider,
 } from '../../typedef';
+import {
+	incorrectLength, indexOutOfBounds, unexpectedProvider, unexpectedType,
+} from '../../error';
 import { checkInt } from '../../helpers';
 
-export class ArrayFixType implements DeepTypeProvider {
+class ArrayFixType implements DeepTypeProvider {
 	constructor (
 		private type: TypeProvider,
 		private length: number,
@@ -66,3 +66,5 @@ export class ArrayFixType implements DeepTypeProvider {
 		}
 	}
 }
+
+export { ArrayFixType };

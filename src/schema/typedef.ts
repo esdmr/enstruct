@@ -1,12 +1,12 @@
 import type { SchemaParserError } from './error';
 
-export interface Location {
+interface Location {
 	readonly offset: number;
 	readonly row: number;
 	readonly column: number;
 }
 
-export type Result<T> = SuccessResult<T> | FailureResult;
+type Result<T> = SuccessResult<T> | FailureResult;
 
 interface SuccessResult<T> {
 	readonly state: true;
@@ -20,3 +20,5 @@ interface FailureResult {
 	message (): SchemaParserError;
 	readonly start: number;
 }
+
+export { Location, Result };

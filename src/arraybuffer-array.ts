@@ -1,4 +1,4 @@
-export class ArrayBufferArray implements ArrayBufferView {
+class ArrayBufferArray implements ArrayBufferView {
 	private bufferCache?: ArrayBuffer;
 	private readonly length: number[];
 	readonly byteLength: number;
@@ -65,3 +65,5 @@ export class ArrayBufferArray implements ArrayBufferView {
 		}
 	}
 }
+
+export { ArrayBufferArray };

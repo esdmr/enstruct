@@ -4,7 +4,7 @@ function stringifyPosition (position: Location) {
 	return `${position.row}:${position.column}@${position.offset}`;
 }
 
-export class SchemaParserError extends Error {
+class SchemaParserError extends Error {
 	constructor (message: string, start: Location, end?: Location) {
 		const position = stringifyPosition(start);
 		const endPosition = end == null ? null : stringifyPosition(end);
@@ -30,7 +30,7 @@ export class SchemaParserError extends Error {
 	}
 }
 
-export class SchemaAstError extends SchemaParserError {
+class SchemaAstError extends SchemaParserError {
 	name = 'SchemaAstError';
 
 	static duplicateType (
@@ -39,6 +39,7 @@ export class SchemaAstError extends SchemaParserError {
 		end?: Location,
 	): SchemaAstError {
 		const message = `Duplicate type statements '${name}' found.`;
+
 		return new SchemaAstError(message, start, end);
 	}
 
@@ -48,6 +49,9 @@ export class SchemaAstError extends SchemaParserError {
 		end?: Location,
 	): SchemaAstError {
 		const message = `Unexisting type reference '${ref}' found.`;
+
 		return new SchemaAstError(message, start, end);
 	}
 }
+
+export { SchemaAstError, SchemaParserError };

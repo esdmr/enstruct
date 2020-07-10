@@ -1,9 +1,9 @@
-import { alloc } from '../helpers';
 import type { TypeProvider } from '../typedef';
+import { alloc } from '../helpers';
 import { unexpectedType } from '../error';
 
 // INFO: This should be converted to namespace when TypeScript/#420 closes.
-export class BooleanType implements TypeProvider {
+class BooleanType implements TypeProvider {
 	getLength (): number { return 1; }
 
 	parse (data: DataView, offset: number): boolean {
@@ -14,6 +14,9 @@ export class BooleanType implements TypeProvider {
 		if (typeof data !== 'boolean') throw unexpectedType('data', 'boolean');
 		const buffer = alloc(1);
 		buffer.setUint8(0, data ? 1 : 0);
+
 		return [buffer.buffer];
 	}
 }
+
+export { BooleanType };

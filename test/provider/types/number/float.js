@@ -1,60 +1,55 @@
 const tap = require('tap');
 const { testTypeProvider, testInvalidType } = require('../../../helper');
-const { IntegerType } =
-	require('../../../../build/provider/types/number/integer');
+const { FloatType } =
+	require('../../../../build/provider/types/number/float');
 
 const { ArrayBufferArray } =
 	require('../../../../build/arraybuffer-array');
 
-const buffer = new DataView(Uint32Array.of(0x78563412).buffer);
+const buffer = new DataView(new ArrayBuffer(24));
+buffer.setFloat32(0, Infinity, false);
+buffer.setFloat32(0, Infinity, true);
+buffer.setFloat64(0, -Infinity, false);
+buffer.setFloat64(0, -Infinity, true);
 
 /**
  * @type {TestItem[]}
  * @typedef {object} TestItem
- * @property {ConstructorParameters<typeof IntegerType>} args
- * @property {IntegerType} [instance]
+ * @property {ConstructorParameters<typeof FloatType>} args
+ * @property {FloatType} [instance]
  * @property {string} [name]
  * @property {number} [size]
+ * @property {number} [offset]
  * @property {[number]} values
  */
 const testList = [
-	{ args: [8, false], values: [0x12] },
-	{ args: [8, true], values: [0x12] },
-	{ args: [16, false], values: [0x1234] },
-	{ args: [16, true], values: [0x1234] },
-	{ args: [32, false], values: [0x12345678] },
-	{ args: [32, true], values: [0x12345678] },
+	{ args: [32], values: [Infinity] },
+	{ args: [64], values: [-Infinity] },
 
-	{ args: [8, false, false], values: [0x12] },
-	{ args: [8, false, true], values: [0x12] },
-	{ args: [8, true, false], values: [0x12] },
-	{ args: [8, true, true], values: [0x12] },
-	{ args: [16, false, false], values: [0x1234] },
-	{ args: [16, false, true], values: [0x3412] },
-	{ args: [16, true, false], values: [0x1234] },
-	{ args: [16, true, true], values: [0x3412] },
-	{ args: [32, false, false], values: [0x12345678] },
-	{ args: [32, false, true], values: [0x78563412] },
-	{ args: [32, true, false], values: [0x12345678] },
-	{ args: [32, true, true], values: [0x78563412] },
+	{ args: [32, false], values: [Infinity] },
+	{ args: [32, true], values: [Infinity] },
+	{ args: [64, false], values: [-Infinity] },
+	{ args: [64, true], values: [-Infinity] },
 ];
 
 for (const item of testList) {
-	const sign = item.args[1] ? 's' : 'u';
-	item.instance = new IntegerType(...item.args);
-	item.name = `${sign}int${item.args[0]}`;
+	item.instance = new FloatType(...item.args);
+	item.name = `float${item.args[0]}`;
 	item.size = item.args[0] / 8;
 
-	if (item.args.length === 3) {
-		item.name += item.args[2] ? 'le' : 'be';
+	item.offset = (item.args[0] === 64 ? 8 : 0) +
+		(item.args[1] ? item.size : 0);
+
+	if (item.args.length === 2) {
+		item.name += item.args[1] ? 'le' : 'be';
 	}
 }
 
 tap.test('IntegerType', async (tap) => {
-	testTypeProvider(tap, IntegerType.prototype);
+	testTypeProvider(tap, FloatType.prototype);
 
 	tap.test('.getLength', async (tap) => {
-		const func = IntegerType.prototype.getLength;
+		const func = FloatType.prototype.getLength;
 		tap.equal(func.length, 0, 'must accept no arguments');
 
 		for (const obj of testList) {
@@ -69,7 +64,7 @@ tap.test('IntegerType', async (tap) => {
 	tap.test('.parse', async (tap) => {
 		for (const obj of testList) {
 			tap.equal(
-				obj.instance.parse(buffer, 0),
+				obj.instance.parse(buffer, obj.offset),
 				obj.values[0],
 				`must have correct output for ${obj.name}`,
 			);

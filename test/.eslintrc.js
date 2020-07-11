@@ -1,8 +1,6 @@
 const parentConfig = require('../.eslintrc');
 
 const OFF = 'off';
-const ERR = 'error';
-const options = parentConfig.parserOptions.options;
 
 module.exports = {
 	rules: {

@@ -6,7 +6,7 @@ const { IntegerType } =
 const { ArrayBufferArray } =
 	require('../../../../build/arraybuffer-array');
 
-const buffer = new DataView(Uint32Array.of(0x78563412).buffer);
+const buffer = new DataView(new ArrayBuffer(42));
 
 /**
  * @type {TestItem[]}
@@ -14,6 +14,7 @@ const buffer = new DataView(Uint32Array.of(0x78563412).buffer);
  * @property {ConstructorParameters<typeof IntegerType>} args
  * @property {IntegerType} [instance]
  * @property {string} [name]
+ * @property {number} [offset]
  * @property {number} [size]
  * @property {[number]} values
  */
@@ -39,11 +40,17 @@ const testList = [
 	{ args: [32, true, true], values: [0x78563412] },
 ];
 
+let currentOffset = 0;
+
 for (const item of testList) {
 	const sign = item.args[1] ? 's' : 'u';
 	item.instance = new IntegerType(...item.args);
 	item.name = `${sign}int${item.args[0]}`;
 	item.size = item.args[0] / 8;
+	item.offset = currentOffset;
+	const name = `set${item.args[1] ? 'I' : 'Ui'}nt${item.args[0]}`;
+	buffer[name](currentOffset, item.values[0], item.args[2]);
+	currentOffset += item.size;
 
 	if (item.args.length === 3) {
 		item.name += item.args[2] ? 'le' : 'be';
@@ -69,7 +76,7 @@ tap.test('IntegerType', async (tap) => {
 	tap.test('.parse', async (tap) => {
 		for (const obj of testList) {
 			tap.equal(
-				obj.instance.parse(buffer, 0),
+				obj.instance.parse(buffer, obj.offset),
 				obj.values[0],
 				`must have correct output for ${obj.name}`,
 			);
@@ -79,15 +86,13 @@ tap.test('IntegerType', async (tap) => {
 	tap.test('.stringify', async (tap) => {
 		for (const obj of testList) {
 			const testBuf = obj.instance.stringify(obj.values[0]);
-			const bufArr = new ArrayBufferArray(testBuf);
-			const dview = bufArr.toDataView();
+			const dview = new ArrayBufferArray(testBuf).toDataView();
 			let state = true;
-			if (bufArr.byteLength !== obj.size) state = false;
+			if (dview.byteLength !== obj.size) state = false;
 
 			for (let offset = 0; offset < obj.size && state; offset++) {
-				if (dview.getUint8(offset) !== buffer.getUint8(offset)) {
-					state = false;
-				}
+				state = dview.getUint8(offset) ===
+					buffer.getUint8(offset + obj.offset);
 			}
 
 			tap.ok(state, `must have correct output for ${obj.name}`);

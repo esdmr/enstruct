@@ -6,11 +6,7 @@ const { FloatType } =
 const { ArrayBufferArray } =
 	require('../../../../build/arraybuffer-array');
 
-const buffer = new DataView(new ArrayBuffer(24));
-buffer.setFloat32(0, Infinity, false);
-buffer.setFloat32(0, Infinity, true);
-buffer.setFloat64(0, -Infinity, false);
-buffer.setFloat64(0, -Infinity, true);
+const buffer = new DataView(new ArrayBuffer(36));
 
 /**
  * @type {TestItem[]}
@@ -18,8 +14,8 @@ buffer.setFloat64(0, -Infinity, true);
  * @property {ConstructorParameters<typeof FloatType>} args
  * @property {FloatType} [instance]
  * @property {string} [name]
- * @property {number} [size]
  * @property {number} [offset]
+ * @property {number} [size]
  * @property {[number]} values
  */
 const testList = [
@@ -32,13 +28,16 @@ const testList = [
 	{ args: [64, true], values: [-Infinity] },
 ];
 
+let currentOffset = 0;
+
 for (const item of testList) {
 	item.instance = new FloatType(...item.args);
 	item.name = `float${item.args[0]}`;
 	item.size = item.args[0] / 8;
-
-	item.offset = (item.args[0] === 64 ? 8 : 0) +
-		(item.args[1] ? item.size : 0);
+	item.offset = currentOffset;
+	const name = `setFloat${item.args[0]}`;
+	buffer[name](currentOffset, item.values[0], item.args[1]);
+	currentOffset += item.size;
 
 	if (item.args.length === 2) {
 		item.name += item.args[1] ? 'le' : 'be';
@@ -74,15 +73,13 @@ tap.test('IntegerType', async (tap) => {
 	tap.test('.stringify', async (tap) => {
 		for (const obj of testList) {
 			const testBuf = obj.instance.stringify(obj.values[0]);
-			const bufArr = new ArrayBufferArray(testBuf);
-			const dview = bufArr.toDataView();
+			const dview = new ArrayBufferArray(testBuf).toDataView();
 			let state = true;
-			if (bufArr.byteLength !== obj.size) state = false;
+			if (dview.byteLength !== obj.size) state = false;
 
 			for (let offset = 0; offset < obj.size && state; offset++) {
-				if (dview.getUint8(offset) !== buffer.getUint8(offset)) {
-					state = false;
-				}
+				state = dview.getUint8(offset) ===
+					buffer.getUint8(offset + obj.offset);
 			}
 
 			tap.ok(state, `must have correct output for ${obj.name}`);

@@ -71,8 +71,7 @@ tap.test('IntegerType', async (tap) => {
 		for (const obj of testList) {
 			const testBuf = obj.instance.stringify(obj.values[0]);
 			const dview = new ArrayBufferArray(testBuf).toDataView();
-			let state = true;
-			if (dview.byteLength !== obj.size) state = false;
+			let state = dview.byteLength === obj.size;
 
 			for (let offset = 0; offset < obj.size && state; offset++) {
 				state = dview.getUint8(offset) ===

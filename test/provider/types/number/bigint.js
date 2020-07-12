@@ -70,8 +70,7 @@ tap.test('BigIntType', async (tap) => {
 		for (const obj of testList) {
 			const testBuf = obj.instance.stringify(obj.values[0]);
 			const dview = new ArrayBufferArray(testBuf).toDataView();
-			let state = true;
-			if (dview.byteLength !== 8) state = false;
+			let state = dview.byteLength === 8;
 
 			for (let offset = 0; offset < 8 && state; offset++) {
 				state = dview.getUint8(offset) ===

@@ -58,12 +58,9 @@ for (const item of testList) {
 }
 
 tap.test('IntegerType', async (tap) => {
-	testTypeProvider(tap, IntegerType.prototype);
+	testTypeProvider(tap, IntegerType.prototype, true);
 
 	tap.test('.getLength', async (tap) => {
-		const func = IntegerType.prototype.getLength;
-		tap.equal(func.length, 0, 'must accept no arguments');
-
 		for (const obj of testList) {
 			tap.equal(
 				obj.instance.getLength(),
@@ -98,6 +95,6 @@ tap.test('IntegerType', async (tap) => {
 			tap.ok(state, `must have correct output for ${obj.name}`);
 		}
 
-		testInvalidType(tap, testList[0].instance.stringify, 'number');
+		testInvalidType(tap, testList[0].instance, 'stringify', 'number');
 	});
 });

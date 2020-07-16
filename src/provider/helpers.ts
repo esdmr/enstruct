@@ -72,8 +72,8 @@ function getItemLength (
 
 type Class<T> = new (...args: never) => T;
 
-function isInstanceOf<T> (obj: unknown, klass: Class<T>): obj is T {
-	return typeof obj === 'object' && obj instanceof klass;
+function isInstanceOf<T> (obj: unknown, constructor: Class<T>): obj is T {
+	return typeof obj === 'object' && obj instanceof constructor;
 }
 
 export { alloc, bufferGet, bufferSet, checkInt, getItemLength, isInstanceOf };

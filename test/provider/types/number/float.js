@@ -81,6 +81,13 @@ tap.test('IntegerType', async (tap) => {
 			tap.ok(state, `must have correct output for ${obj.name}`);
 		}
 
-		testInvalidType(tap, testList[0].instance, 'stringify', 'number');
+		testInvalidType(
+			tap,
+			testList[0].instance,
+			'stringify',
+			'number',
+			'infinity',
+			'nan',
+		);
 	});
 });

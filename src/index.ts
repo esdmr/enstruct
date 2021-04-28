@@ -1,7 +1,7 @@
 import { DeepTypeProvider, Environment, TypeProvider } from './provider';
-import { SchemaParser } from './schema';
-import type { GetValue } from './typedef';
 import { ArrayBufferArray } from './arraybuffer-array';
+import type { GetValue } from './typedef';
+import { SchemaParser } from './schema';
 
 function isDeep (type: TypeProvider): type is DeepTypeProvider {
 	return Object.prototype.hasOwnProperty.call(type, 'getIndex');
@@ -18,6 +18,7 @@ export default class Enstruct<T extends {[x: string]: unknown}> {
 
 	compile (): this {
 		this.schemaParser.start().compile(this.environment);
+
 		return this;
 	}
 
@@ -58,6 +59,7 @@ export default class Enstruct<T extends {[x: string]: unknown}> {
 	stringify<K extends keyof T & string> (entry: K, data: T[K]):
 	ArrayBufferArray {
 		const array = this.environment.getType(entry).stringify(data);
+
 		return new ArrayBufferArray(array);
 	}
 }

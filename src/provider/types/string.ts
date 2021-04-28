@@ -23,6 +23,7 @@ export class StringLenType implements TypeProvider {
 
 	stringify (data: unknown): ArrayBuffer[] {
 		if (typeof data !== 'string') throw unexpectedType('data', 'string');
+
 		return this.bufferType.stringify(encoder.encode(data).buffer);
 	}
 }

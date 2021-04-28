@@ -1,8 +1,8 @@
-import { inspect } from 'util';
 import {
 	ArrayFixType, ArrayLenType, Environment, StructType, TypeProvider,
 } from '../provider';
 import type { Location } from './typedef';
+import { inspect } from 'util';
 
 const indent = ' '.repeat(4);
 
@@ -119,6 +119,7 @@ export class StructStatement extends CompilableASTItem {
 
 	toString (): string {
 		const props = this.props.map((item) => indent + item.toString());
+
 		return `struct ${this.name} {\n${props.join('\n')}\n}`;
 	}
 }

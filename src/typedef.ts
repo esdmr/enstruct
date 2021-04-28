@@ -2,7 +2,6 @@ type Tail<T extends readonly unknown[]> =
 	((...args: T) => void) extends ((first: any, ...rest: infer V) => void) ? V
 		: T extends [unknown] ? [] : T extends [] ? [] : never;
 
-
 export type GetValue<T, K extends readonly unknown[]> = {
 	done: T,
 	deep: unknown,

@@ -18,6 +18,7 @@ export class FloatType implements TypeProvider {
 		if (typeof data !== 'number') throw unexpectedType('data', 'number');
 		const buffer = alloc(this.getLength());
 		bufferSet.float[this.size](buffer)(0, data, this.le);
+
 		return [buffer.buffer];
 	}
 }

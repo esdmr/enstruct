@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 
-import { unexpectedProvider, ProviderError } from './error';
+import { ProviderError, unexpectedProvider } from './error';
 import { TypeProvider } from './typedef';
 
 export function alloc (size: number) {
@@ -66,10 +66,12 @@ export function getItemLength (
 	}
 
 	checkInt(itemLength, 'length');
+
 	return itemLength;
 }
 
 type Class<T> = new (...args: never) => T;
-export function isInstanceOf<T> (obj: unknown, klass: Class<T>): obj is T {
-	return typeof obj === 'object' && obj instanceof klass;
+
+export function isInstanceOf<T> (obj: unknown, ctor: Class<T>): obj is T {
+	return typeof obj === 'object' && obj instanceof ctor;
 }

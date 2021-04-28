@@ -1,6 +1,6 @@
-import type { TypeProvider } from './typedef';
 import { BigIntType, BooleanType, FloatType, IntegerType } from './types';
 import { ProviderError } from './error';
+import type { TypeProvider } from './typedef';
 
 const uint32be = new IntegerType(32, false, false);
 const uint32le = new IntegerType(32, false, true);

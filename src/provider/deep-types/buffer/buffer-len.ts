@@ -1,9 +1,9 @@
-import { indexOutOfBounds, unexpectedType } from '../../error';
 import type {
 	DeepTypeData, DeepTypeProvider, TypeProvider,
 } from '../../typedef';
+import { checkInt, getItemLength, isInstanceOf } from '../../helpers';
+import { indexOutOfBounds, unexpectedType } from '../../error';
 import { IntegerType } from '../../types/number/integer';
-import { getItemLength, checkInt, isInstanceOf } from '../../helpers';
 
 const intType = new IntegerType(8, true, false);
 
@@ -17,6 +17,7 @@ export class BufferLenType implements DeepTypeProvider {
 
 	parse (buffer: DataView, offset: number): ArrayBuffer {
 		const lengthSize = this.lengthType.getLength(buffer, offset);
+
 		const totalSize = lengthSize +
 			getItemLength(this.lengthType, buffer, offset);
 
@@ -36,6 +37,7 @@ export class BufferLenType implements DeepTypeProvider {
 		checkInt(index);
 		const itemLength = getItemLength(this.lengthType, data, offset);
 		if (index >= itemLength) throw indexOutOfBounds(index);
+
 		return { offset: offset + index, type: intType };
 	}
 }

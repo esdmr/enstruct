@@ -1,7 +1,7 @@
-import { indexOutOfBounds, unexpectedType } from '../../error';
 import type { DeepTypeData, DeepTypeProvider } from '../../typedef';
+import { checkInt, isInstanceOf } from '../../helpers';
+import { indexOutOfBounds, unexpectedType } from '../../error';
 import { IntegerType } from '../../types/number/integer';
-import { isInstanceOf, checkInt } from '../../helpers';
 
 const intType = new IntegerType(8, false);
 
@@ -30,6 +30,7 @@ export class BufferFixType implements DeepTypeProvider {
 		if (typeof index !== 'number') throw unexpectedType('index', 'number');
 		checkInt(index, 'index');
 		if (index >= this.length) throw indexOutOfBounds(index);
+
 		return { offset: offset + index, type: intType };
 	}
 }

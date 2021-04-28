@@ -18,6 +18,7 @@ export class BigIntType implements TypeProvider {
 		if (typeof data !== 'bigint') throw unexpectedType('data', 'bigint');
 		const buffer = alloc(8);
 		bufferSet[this.signed ? 1 : 0][64](buffer)(0, data, this.le);
+
 		return [buffer.buffer];
 	}
 }

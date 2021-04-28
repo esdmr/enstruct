@@ -1,8 +1,8 @@
-import { indexOutOfBounds, unexpectedType } from '../../error';
-import { getItemLength, checkInt } from '../../helpers';
 import type {
 	DeepTypeData, DeepTypeProvider, TypeProvider,
 } from '../../typedef';
+import { checkInt, getItemLength } from '../../helpers';
+import { indexOutOfBounds, unexpectedType } from '../../error';
 
 export class ArrayLenType implements DeepTypeProvider {
 	constructor (

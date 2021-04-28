@@ -39,6 +39,7 @@ export class SchemaAstError extends SchemaParserError {
 		end?: Location,
 	): SchemaAstError {
 		const message = `Duplicate type statements '${name}' found.`;
+
 		return new SchemaAstError(message, start, end);
 	}
 
@@ -48,6 +49,7 @@ export class SchemaAstError extends SchemaParserError {
 		end?: Location,
 	): SchemaAstError {
 		const message = `Unexisting type reference '${ref}' found.`;
+
 		return new SchemaAstError(message, start, end);
 	}
 }

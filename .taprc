@@ -1,0 +1,4 @@
+ts: true
+coverage: true
+coverage-map: "coverage-map.js"
+reporter: "spec"

@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "Create binary data based on data-type specific encoders.",
   "main": "build/index.js",
-  "typings": "build/index.d.ts",
+  "types": "build/index.d.ts",
   "files": [
     "build/**/*.d.ts",
     "build/**/*.js",

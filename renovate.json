@@ -1,5 +1,16 @@
 {
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
   "extends": [
     "config:base"
+    "config:base"
   ]
+  ],
+  "compatibility": {
+    "pnpm": "^6.7.6"
+  },
+  "lockFileMaintenance": {
+    "enabled": true
+  }
+}
 }

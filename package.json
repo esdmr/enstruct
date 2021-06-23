@@ -32,7 +32,7 @@
   "author": "Saeed M Rad",
   "license": "MIT",
   "devDependencies": {
-    "@types/node": "14.17.3",
+    "@types/node": "14.17.4",
     "@types/tap": "15.0.3",
     "@typescript-eslint/eslint-plugin": "4.28.0",
     "@typescript-eslint/parser": "4.28.0",

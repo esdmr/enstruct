@@ -2,7 +2,7 @@ lockfileVersion: 5.3
 
 specifiers:
   '@types/node': 14.17.4
-  '@types/tap': 15.0.3
+  '@types/tap': 15.0.4
   '@typescript-eslint/eslint-plugin': 4.28.0
   '@typescript-eslint/parser': 4.28.0
   eslint: 7.29.0
@@ -12,7 +12,7 @@ specifiers:
 
 devDependencies:
   '@types/node': 14.17.4
-  '@types/tap': 15.0.3
+  '@types/tap': 15.0.4
   '@typescript-eslint/eslint-plugin': 4.28.0_4ec1e0eca7c6e4115e1e7a13008fdec2
   '@typescript-eslint/parser': 4.28.0_eslint@7.29.0+typescript@4.3.4
   eslint: 7.29.0
@@ -378,18 +378,14 @@ packages:
     resolution: {integrity: sha512-cxWFQVseBm6O9Gbw1IWb8r6OS4OhSt3hPZLkFApLjM8TEXROBuQGLAH2i2gZpcXdLBIrpXuTDhH7Vbm1iXmNGA==}
     dev: true
 
-  /@types/node/14.17.3:
-    resolution: {integrity: sha512-e6ZowgGJmTuXa3GyaPbTGxX17tnThl2aSSizrFthQ7m9uLGZBXiGhgE55cjRZTF5kjZvYn9EOPOMljdjwbflxw==}
-    dev: true
-
   /@types/node/14.17.4:
     resolution: {integrity: sha512-8kQ3+wKGRNN0ghtEn7EGps/B8CzuBz1nXZEIGGLP2GnwbqYn4dbTs7k+VKLTq1HvZLRCIDtN3Snx1Ege8B7L5A==}
     dev: true
 
-  /@types/tap/15.0.3:
-    resolution: {integrity: sha512-usOLtmMm1jfjPdkt9R9HMTU/J6m9QNYjgFs5U2tFiOzQSd7lDd/aAMprExYLnJnZb6tM4ujmGv7ITe+1smIRgg==}
+  /@types/tap/15.0.4:
+    resolution: {integrity: sha512-oOZWq0ySiTxhm9BrHTmYSF5Xh3HbzDv6i4dT/pY55Jm8dAabInT9Nbwtm7Y/G9mArtJqZaukcEq1TlFGG23weA==}
     dependencies:
-      '@types/node': 14.17.3
+      '@types/node': 14.17.4
     dev: true
 
   /@typescript-eslint/eslint-plugin/4.28.0_4ec1e0eca7c6e4115e1e7a13008fdec2:
